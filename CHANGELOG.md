@@ -5,42 +5,65 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
-## [v1.2.0] - 2025-01-29
+## [v2.0.0] - 2025-01-29 - Docker Exclusivo
+
+### 🔄 **BREAKING CHANGES**
+- **Execução exclusiva via Docker**: Removido suporte à instalação local
+- Todos os scripts e funcionalidades agora são focados apenas em Docker
 
 ### ✅ Adicionado
-- Script de instalação automática (`install.sh`) para facilitar setup
-- Configuração Docker melhorada com DNS customizado
+- Script `run-docker.sh` para execução automatizada via Docker
+- Validação automática de configurações no script de execução
+- Fallback para docker-compose quando build direto falha
+- Mapeamento de volumes para persistência de dados
+- Comandos úteis para gerenciamento do container no README
+
+### 🔧 Corrigido
+- Dockerfile otimizado para usar dependências locais (.venv) quando disponível
+- Melhor tratamento de erros no processo de build e execução
+- Script de execução com verificações robustas de ambiente
+
+### 📊 Melhorias
+- README.md completamente reescrito focando apenas em Docker
+- Documentação simplificada e mais objetiva
+- Estrutura de projeto mais limpa
+- Processo de setup reduzido a um único comando
+
+### 🗑️ Removido
+- `install.sh` (script de instalação local)
+- `test_installation.py` (testes de instalação local)
+- `Dockerfile.offline` (versão alternativa desnecessária)
+- Documentação de instalação local
+- Instruções de setup manual complexo
+
+### ✅ Mantido
+- Todas as funcionalidades do bot Telegram
+- Configuração via arquivo `.env`
+- Docker Compose como alternativa
+- Estrutura de dependências em `requirements.txt`
+- Funcionalidades de geração de texto, imagem e tendências
+
+## [v1.2.0] - 2025-01-29 - Versão Híbrida
+
+### ✅ Adicionado
+- Script de instalação automática (`install.sh`)
+- Sistema de testes de instalação (`test_installation.py`)
+- Configuração Docker melhorada
 - Dockerfile otimizado para builds mais eficientes
 - Docker Compose para deployment simplificado
 - Versões específicas nas dependências para maior estabilidade
-- Sistema de troubleshooting abrangente no README
-- Arquivo `.dockerignore` otimizado
-- Configuração de DNS no Docker daemon (`/etc/docker/daemon.json`)
 
 ### 🔧 Corrigido
 - Problemas de build do Docker relacionados a network bridge
-- Configuração de DNS no Docker daemon para resolver conectividade
+- Configuração de DNS no Docker daemon
 - Verificação automática de dependências do sistema
-- Criação automática de diretórios necessários (`posts`, `templates`)
-- Compatibilidade com Python 3.10+ verificada automaticamente
+- Criação automática de diretórios necessários
 
 ### 📊 Melhorias
-- README.md completamente reescrito e organizado
-- Documentação de troubleshooting detalhada
-- Processo de instalação mais robusto e confiável
-- Compatibilidade melhorada com diferentes sistemas operacionais
-- Estrutura de arquivos mais organizada
-- Mensagens de erro mais claras e informativas
-
-### 🔄 Alterado
-- `requirements.txt` atualizado com versões específicas:
-  - `python-telegram-bot==20.3`
-  - `openai==1.3.8`
-  - `requests==2.31.0`
-  - `python-dotenv==1.0.0`
-  - `pytrends==4.9.2`
-  - `jinja2==3.1.2`
-  - `Pillow==10.1.0`
+- README.md detalhado com múltiplas opções de instalação
+- Documentação de troubleshooting abrangente
+- Processo de instalação mais robusto
+- Compatibilidade melhorada com diferentes sistemas
 
 ## [v1.1.0] - Data anterior
 

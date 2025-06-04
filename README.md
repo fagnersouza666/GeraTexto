@@ -1,6 +1,6 @@
 # GeraTexto - Bot Telegram para Geração de Conteúdo
 
-Um bot do Telegram inteligente que utiliza IA para gerar posts automaticamente, criar imagens e obter tendências de pesquisa para criação de conteúdo engajante.
+Bot do Telegram inteligente que utiliza IA para gerar posts automaticamente, criar imagens e obter tendências de pesquisa. **Execução exclusiva via Docker**.
 
 ## 🚀 Funcionalidades
 
@@ -10,74 +10,72 @@ Um bot do Telegram inteligente que utiliza IA para gerar posts automaticamente, 
 - **Bot Telegram**: Interface amigável através do Telegram
 - **Templates Personalizáveis**: Sistema de templates para diferentes tipos de conteúdo
 
-## 📋 Instruções de Instalação
+## 🐳 Execução via Docker
 
-### Opção 1: Instalação Automática (Recomendada)
+### Pré-requisitos
 
-```bash
-# Clone o repositório
-git clone <url-do-repositorio>
-cd GeraTexto
+- **Docker** instalado e funcionando
+- **Docker Compose** (opcional, incluído na maioria das instalações)
 
-# Execute o script de instalação
-chmod +x install.sh
-./install.sh
-```
+### Configuração Rápida
 
-### Opção 2: Instalação Manual
+1. **Clone o repositório**:
+   ```bash
+   git clone <url-do-repositorio>
+   cd GeraTexto
+   ```
 
-```bash
-# Criar ambiente virtual
-python3 -m venv .venv
-source .venv/bin/activate
+2. **Execute o script de inicialização**:
+   ```bash
+   ./run-docker.sh
+   ```
 
-# Instalar dependências
-pip install --upgrade pip
-pip install -r requirements.txt
+O script automaticamente:
+- Verifica se o arquivo `.env` existe
+- Cria `.env` baseado no exemplo se necessário
+- Valida as configurações
+- Constrói a imagem Docker
+- Inicia o container
 
-# Criar diretórios necessários
-mkdir -p posts templates
+### Configuração Manual
 
-# Configurar variáveis de ambiente
-cp .env.example .env
-# Edite o arquivo .env com suas chaves de API
-```
+Se preferir configurar manualmente:
 
-### Opção 3: Docker (Se disponível)
+1. **Criar arquivo de configuração**:
+   ```bash
+   cp .env.example .env
+   ```
 
-```bash
-# Usar docker-compose
-docker-compose up --build
+2. **Editar variáveis de ambiente**:
+   ```env
+   TELEGRAM_TOKEN=seu_token_do_telegram_aqui
+   OPENAI_API_KEY=sua_chave_openai_aqui
+   ```
 
-# Ou build manual
-docker build -t geratexto .
-docker run -d --env-file .env geratexto
-```
+3. **Executar com Docker Compose**:
+   ```bash
+   docker-compose up --build -d
+   ```
 
-## 🔧 Configuração
+   **Ou Docker tradicional**:
+   ```bash
+   docker build -t geratexto .
+   docker run -d --name geratexto-bot --env-file .env geratexto
+   ```
 
-### Variáveis de Ambiente
+## 🔧 Como Obter as Chaves de API
 
-Crie um arquivo `.env` baseado no `.env.example`:
+### Token do Telegram
+1. Fale com [@BotFather](https://t.me/botfather) no Telegram
+2. Use `/newbot` para criar um novo bot
+3. Copie o token fornecido
 
-```env
-TELEGRAM_TOKEN=seu_token_do_telegram_aqui
-OPENAI_API_KEY=sua_chave_openai_aqui
-```
+### Chave da OpenAI
+1. Acesse [platform.openai.com](https://platform.openai.com)
+2. Crie uma conta e vá para API Keys
+3. Gere uma nova chave secreta
 
-### Como Obter as Chaves
-
-1. **Token do Telegram**:
-   - Fale com [@BotFather](https://t.me/botfather) no Telegram
-   - Use `/newbot` para criar um novo bot
-   - Copie o token fornecido
-
-2. **Chave da OpenAI**:
-   - Acesse [platform.openai.com](https://platform.openai.com)
-   - Crie uma conta e vá para API Keys
-   - Gere uma nova chave secreta
-
-## 📖 Exemplos de Uso
+## 📖 Como Usar
 
 ### Comandos do Bot
 
@@ -98,92 +96,119 @@ OPENAI_API_KEY=sua_chave_openai_aqui
 # 3. Salvar o conteúdo em arquivo
 ```
 
-## 📦 Dependências
+## 🛠️ Gerenciamento do Container
 
-### Principais
+### Comandos Úteis
 
-- **python-telegram-bot==20.3** - API do Telegram
-- **openai==1.3.8** - API da OpenAI
-- **requests==2.31.0** - Requisições HTTP
-- **python-dotenv==1.0.0** - Gerenciamento de variáveis de ambiente
-- **pytrends==4.9.2** - Google Trends API
-- **jinja2==3.1.2** - Sistema de templates
-- **Pillow==10.1.0** - Processamento de imagens
+```bash
+# Ver status
+docker ps --filter name=geratexto-bot
 
-### Compatibilidade
+# Ver logs em tempo real
+docker logs -f geratexto-bot
 
-- **Python**: 3.10 ou superior
-- **Sistema Operacional**: Linux, macOS, Windows
-- **Docker**: Opcional (versão 20.10+)
+# Parar o bot
+docker stop geratexto-bot
+
+# Reiniciar o bot
+docker restart geratexto-bot
+
+# Remover o container
+docker rm -f geratexto-bot
+
+# Usar docker-compose
+docker-compose up -d     # Iniciar
+docker-compose down      # Parar
+docker-compose logs -f   # Ver logs
+```
+
+### Volumes Mapeados
+
+O container mapeia os seguintes diretórios:
+- `./posts` → `/app/posts` (posts gerados)
+- `./templates` → `/app/templates` (templates personalizados)
 
 ## 🐛 Troubleshooting
 
 ### Problemas Comuns
 
-1. **Erro de instalação Docker**:
+1. **Container não inicia**:
    ```bash
-   # Use a instalação local
-   ./install.sh
+   docker logs geratexto-bot
    ```
 
-2. **Erro "network bridge not found"**:
+2. **Erro de variáveis de ambiente**:
    ```bash
-   # Reinicie o Docker
-   sudo systemctl restart docker
-   
-   # Ou use a instalação local
-   ./install.sh
-   ```
-
-3. **Erro de dependências**:
-   ```bash
-   # Limpe o cache e reinstale
-   pip cache purge
-   pip install --force-reinstall -r requirements.txt
-   ```
-
-4. **Erro de variáveis de ambiente**:
-   ```bash
-   # Verifique se o arquivo .env existe e tem as chaves corretas
+   # Verificar .env
    cat .env
+   # Reconfigurar se necessário
+   cp .env.example .env
    ```
+
+3. **Erro de build Docker**:
+   ```bash
+   # Limpar cache e tentar novamente
+   docker system prune -f
+   ./run-docker.sh
+   ```
+
+4. **Erro de permissões**:
+   ```bash
+   # Dar permissão ao script
+   chmod +x run-docker.sh
+   ```
+
+## 📦 Estrutura do Projeto
+
+```
+GeraTexto/
+├── 🐳 Dockerfile              # Configuração Docker
+├── 🐳 docker-compose.yml      # Docker Compose
+├── 🚀 run-docker.sh          # Script de execução
+├── ⚙️  .env.example           # Exemplo de configuração
+├── 📝 bot_telegram.py         # Bot principal
+├── 🤖 escritor_ia.py          # Geração de texto
+├── 🖼️  imagem_ia.py           # Geração de imagens
+├── 📊 gerador_tendencias.py   # Análise de tendências
+├── 🛠️  utils.py               # Utilitários
+├── 📋 requirements.txt        # Dependências Python
+└── 📁 posts/                  # Posts gerados (mapeado)
+```
 
 ## 📝 Changelog / Atualizações Recentes
 
-### [v1.2.0] - 2025-01-29
+### [v2.0.0] - 2025-01-29
 
-#### ✅ Adicionado
-- Script de instalação automática (`install.sh`)
-- Configuração Docker melhorada com DNS customizado
-- Dockerfile otimizado para builds mais eficientes
-- Docker Compose para deployment simplificado
-- Versões específicas nas dependências para maior estabilidade
-- Sistema de troubleshooting abrangente
+#### 🔄 Alterado
+- **Execução exclusiva via Docker**: Removida instalação local
+- Script `run-docker.sh` para facilitar execução
+- Dockerfile otimizado para usar dependências locais
+- README.md focado apenas em Docker
 
-#### 🔧 Corrigido
-- Problemas de build do Docker relacionados a network bridge
-- Configuração de DNS no Docker daemon
-- Verificação automática de dependências do sistema
-- Criação automática de diretórios necessários
+#### 🗑️ Removido
+- `install.sh` (script de instalação local)
+- `test_installation.py` (testes locais) 
+- `Dockerfile.offline` (alternativa desnecessária)
+- Suporte a execução local direta
 
-#### 📊 Melhorias
-- README.md mais detalhado e organizado
-- Documentação de troubleshooting
-- Processo de instalação mais robusto
-- Compatibilidade melhorada com diferentes sistemas
+#### ✅ Mantido
+- Funcionalidades completas do bot
+- Configuração via `.env`
+- Docker Compose como alternativa
+- Mapeamento de volumes para persistência
 
 ## 🔄 Versão Atual
 
-**v1.2.0** - Sistema de geração de conteúdo com IA otimizado e instalação simplificada
+**v2.0.0** - Execução exclusiva via Docker com script automatizado
 
 ## 📞 Suporte
 
-Para problemas ou dúvidas:
+Para problemas:
 
-1. Verifique a seção de [Troubleshooting](#🐛-troubleshooting)
-2. Consulte o arquivo `CHANGELOG.md` para atualizações recentes
-3. Execute `./install.sh` para reinstalação limpa
-4. Verifique os logs: `tail -f logs/bot.log` (se disponível)
+1. Execute `docker logs -f geratexto-bot` para ver os logs
+2. Verifique se o arquivo `.env` está configurado corretamente
+3. Use `./run-docker.sh` para reinicialização limpa
+4. Consulte a seção de [Troubleshooting](#🐛-troubleshooting)
 
 ## 📄 Licença
 
