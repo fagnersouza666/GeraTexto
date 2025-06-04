@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Execução e testes
+Para iniciar o bot, execute python bot_telegram.py. 
+Para rodar os testes unitários, utilize python -m pytest. 

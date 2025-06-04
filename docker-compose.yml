@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  geratexto:
+    build: .
+    container_name: geratexto-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./posts:/app/posts
+      - ./templates:/app/templates
+    networks:
+      - geratexto-network
+
+networks:
+  geratexto-network:
+    driver: bridge
