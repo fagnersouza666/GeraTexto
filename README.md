@@ -13,7 +13,11 @@ Bot de Telegram para gerar conteúdos sobre inteligência artificial e tecnologi
    ```bash
    pip install -r requirements.txt
    ```
-3. Crie um arquivo `.env` com as seguintes variáveis:
+3. Copie o arquivo `.env.example` para `.env` e preencha com suas chaves:
+   ```bash
+   cp .env.example .env
+   ```
+   Em seguida, edite o arquivo `.env` definindo:
    ```
    TELEGRAM_TOKEN=seu_token
    OPENAI_API_KEY=sua_chave
