@@ -1,4 +1,5 @@
 import json
+import logging
 from dataclasses import dataclass
 from typing import List
 import requests
@@ -8,6 +9,8 @@ USER_AGENT = "GeraTextoBot/0.1"
 REDDIT_URL = "https://www.reddit.com/r/artificial/hot.json?limit=10"
 HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{}.json"
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Tendencia:
@@ -26,6 +29,7 @@ def tendencias_reddit(top_n: int = 5) -> List[Tendencia]:
         ]
         return topics[:top_n]
     except Exception:
+        logger.exception("Erro ao obter tendências do Reddit")
         return []
 
 
@@ -38,6 +42,7 @@ def tendencias_hn(top_n: int = 5) -> List[Tendencia]:
             topics.append(Tendencia(item.get("title", ""), item.get("url")))
         return topics[:top_n]
     except Exception:
+        logger.exception("Erro ao obter tendências do Hacker News")
         return []
 
 
@@ -47,6 +52,7 @@ def tendencias_google(top_n: int = 5) -> List[Tendencia]:
         trending = pt.trending_searches(pn="brazil")[0].tolist()
         return [Tendencia(t) for t in trending[:top_n]]
     except Exception:
+        logger.exception("Erro ao obter tendências do Google")
         return []
 
 

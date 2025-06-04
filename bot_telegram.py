@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 from pathlib import Path
+import logging
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
@@ -9,6 +10,7 @@ from escritor_ia import gerar_post, salvar_post
 from imagem_ia import gerar_imagem
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 
