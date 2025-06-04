@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 import logging
-from dotenv import load_dotenv
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -19,12 +18,11 @@ from escritor_ia import gerar_post, salvar_post
 from imagem_ia import gerar_imagem
 from gerador_tendencias import obter_tendencias
 
-load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 verificar_env()
 
-TOKEN = os.getenv("TELEGRAM_TOKEN")
+TOKEN = os.environ["TELEGRAM_TOKEN"]
 MAX_TENDENCIAS = 5
 
 
