@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Script de teste para verificar se a instalação do GeraTexto está funcionando.
+Execute: python test_installation.py
 """
 
 import sys
@@ -12,45 +13,21 @@ def test_imports():
     """Testa se todos os módulos podem ser importados."""
     print("🔍 Testando importações...")
 
-    try:
-        import bot_telegram
+    modules = [
+        "bot_telegram",
+        "escritor_ia",
+        "imagem_ia",
+        "gerador_tendencias",
+        "utils",
+    ]
 
-        print("✅ bot_telegram importado")
-    except ImportError as e:
-        print(f"❌ Erro ao importar bot_telegram: {e}")
-        return False
-
-    try:
-        import escritor_ia
-
-        print("✅ escritor_ia importado")
-    except ImportError as e:
-        print(f"❌ Erro ao importar escritor_ia: {e}")
-        return False
-
-    try:
-        import imagem_ia
-
-        print("✅ imagem_ia importado")
-    except ImportError as e:
-        print(f"❌ Erro ao importar imagem_ia: {e}")
-        return False
-
-    try:
-        import gerador_tendencias
-
-        print("✅ gerador_tendencias importado")
-    except ImportError as e:
-        print(f"❌ Erro ao importar gerador_tendencias: {e}")
-        return False
-
-    try:
-        import utils
-
-        print("✅ utils importado")
-    except ImportError as e:
-        print(f"❌ Erro ao importar utils: {e}")
-        return False
+    for module in modules:
+        try:
+            __import__(module)
+            print(f"✅ {module} importado")
+        except ImportError as e:
+            print(f"❌ Erro ao importar {module}: {e}")
+            return False
 
     return True
 
@@ -110,17 +87,17 @@ def test_env_file():
         with open(".env", "r") as f:
             content = f.read()
 
-        if "TELEGRAM_TOKEN" in content:
-            print("✅ TELEGRAM_TOKEN encontrado no .env")
-        else:
-            print("⚠️  TELEGRAM_TOKEN não encontrado no .env")
+        required_vars = ["TELEGRAM_TOKEN", "OPENAI_API_KEY"]
+        all_found = True
 
-        if "OPENAI_API_KEY" in content:
-            print("✅ OPENAI_API_KEY encontrado no .env")
-        else:
-            print("⚠️  OPENAI_API_KEY não encontrado no .env")
+        for var in required_vars:
+            if var in content:
+                print(f"✅ {var} encontrado no .env")
+            else:
+                print(f"⚠️  {var} não encontrado no .env")
+                all_found = False
 
-        return True
+        return all_found
     else:
         print("⚠️  Arquivo .env não existe")
         print("💡 Execute: cp .env.example .env e configure suas chaves")
