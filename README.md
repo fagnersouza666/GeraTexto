@@ -28,3 +28,16 @@ python bot_telegram.py
 
 No Telegram, envie `/gerar <tema>` para receber o conteúdo gerado. O texto será salvo em `conteudos_gerados/`.
 
+## Docker
+
+Voce tambem pode executar tudo em um container Docker. Construa a imagem:
+
+```bash
+docker build -t geratexto .
+```
+
+Depois rode o container passando as variaveis de ambiente:
+
+```bash
+docker run --env TELEGRAM_TOKEN=seu_token --env OPENAI_API_KEY=sua_chave geratexto
+```
