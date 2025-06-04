@@ -41,3 +41,12 @@ Depois rode o container passando as variaveis de ambiente:
 ```bash
 docker run --env TELEGRAM_TOKEN=seu_token --env OPENAI_API_KEY=sua_chave geratexto
 ```
+
+## Testes
+
+Para executar os testes unitários, utilize o `python -m pytest`:
+
+```bash
+python -m pytest
+```
+
