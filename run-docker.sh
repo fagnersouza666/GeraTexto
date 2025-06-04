@@ -13,6 +13,10 @@ if [ ! -f ".env" ]; then
     echo "   - TELEGRAM_TOKEN=seu_token_aqui"
     echo "   - OPENAI_API_KEY=sua_chave_aqui"
     echo ""
+    echo "📋 Como obter as chaves:"
+    echo "   🤖 Telegram: Fale com @BotFather e use /newbot"
+    echo "   🧠 OpenAI: Acesse platform.openai.com → API Keys"
+    echo ""
     echo "💡 Após configurar, execute novamente: ./run-docker.sh"
     exit 1
 fi
@@ -22,6 +26,10 @@ source .env
 if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$OPENAI_API_KEY" ] || [ "$TELEGRAM_TOKEN" = "your_telegram_token_here" ] || [ "$OPENAI_API_KEY" = "your_openai_key_here" ]; then
     echo "❌ Configure as variáveis TELEGRAM_TOKEN e OPENAI_API_KEY no arquivo .env"
     echo "💡 Edite o arquivo .env com suas chaves reais"
+    echo ""
+    echo "📋 Exemplo de configuração:"
+    echo "   TELEGRAM_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+    echo "   OPENAI_API_KEY=sk-proj-abcd1234..."
     exit 1
 fi
 
@@ -54,6 +62,11 @@ docker run -d \
 
 if [ $? -eq 0 ]; then
     echo "✅ GeraTexto iniciado com sucesso!"
+    echo ""
+    echo "🎉 Bot está rodando! Teste no Telegram:"
+    echo "   /start - Inicializar o bot"
+    echo "   /gerar <tema> - Gerar post sobre um tema"
+    echo "   /tendencias - Ver tendências atuais"
     echo ""
     echo "📊 Status do container:"
     docker ps --filter name=geratexto-bot
