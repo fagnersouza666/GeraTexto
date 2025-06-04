@@ -3,13 +3,20 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+)
 
 from escritor_ia import gerar_post, salvar_post
 from imagem_ia import gerar_imagem
+from gerador_tendencias import obter_tendencias
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
+MAX_TENDENCIAS = 5
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -33,6 +40,24 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
+async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    topicos = obter_tendencias()[:MAX_TENDENCIAS]
+    if not topicos:
+        await update.message.reply_text("N\u00e3o foi poss\u00edvel obter tend\u00eancias agora.")
+        return
+    linhas = []
+    for t in topicos:
+        if t.link:
+            linhas.append(f"- [{t.titulo}]({t.link})")
+        else:
+            linhas.append(f"- {t.titulo}")
+    await update.message.reply_text(
+        "\n".join(linhas),
+        parse_mode="Markdown",
+        disable_web_page_preview=True,
+    )
+
+
 async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
@@ -49,6 +74,7 @@ def main() -> None:
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("gerar", gerar))
+    app.add_handler(CommandHandler("tendencias", tendencias))
     app.add_handler(CallbackQueryHandler(callbacks))
     app.run_polling()
 
