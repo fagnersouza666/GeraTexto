@@ -2,8 +2,12 @@ from __future__ import annotations
 import os
 from datetime import datetime
 from pathlib import Path
+
 from dotenv import load_dotenv
 import logging
+
+from utils import verificar_env
+
 import openai
 from jinja2 import Template
 
@@ -11,7 +15,7 @@ ESTILO_PATH = Path("prompts/estilo.txt")
 TEMPLATE_PATH = Path("templates/artigo.md")
 OUTPUT_DIR = Path("conteudos_gerados")
 
-load_dotenv()
+verificar_env()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 logger = logging.getLogger(__name__)

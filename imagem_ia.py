@@ -1,12 +1,16 @@
 from __future__ import annotations
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 import logging
+
+from utils import verificar_env
+
 import openai
 import requests
 
-load_dotenv()
+verificar_env()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 logger = logging.getLogger(__name__)
