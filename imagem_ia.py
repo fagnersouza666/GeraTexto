@@ -2,7 +2,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
 import logging
 
 from utils import verificar_env
@@ -17,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def gerar_imagem(prompt: str, destino: Path, tamanho: str = "512x512") -> Path:
+    """Gera uma imagem usando a API da OpenAI e salva no caminho informado."""
     try:
         resposta = openai.Image.create(prompt=prompt, n=1, size=tamanho)
     except Exception:

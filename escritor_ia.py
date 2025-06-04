@@ -3,7 +3,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from dotenv import load_dotenv
 import logging
 
 from utils import verificar_env
@@ -11,9 +10,10 @@ from utils import verificar_env
 import openai
 from jinja2 import Template
 
-ESTILO_PATH = Path("prompts/estilo.txt")
-TEMPLATE_PATH = Path("templates/artigo.md")
-OUTPUT_DIR = Path("conteudos_gerados")
+BASE_DIR = Path(__file__).resolve().parent
+ESTILO_PATH = BASE_DIR / "prompts" / "estilo.txt"
+TEMPLATE_PATH = BASE_DIR / "templates" / "artigo.md"
+OUTPUT_DIR = BASE_DIR / "conteudos_gerados"
 
 verificar_env()
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -22,14 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 def _carregar_estilo() -> str:
+    """Carrega o prompt de estilo utilizado na geração do texto."""
     return ESTILO_PATH.read_text(encoding="utf-8")
 
 
 def _carregar_template() -> Template:
+    """Carrega o template Markdown do post."""
     return Template(TEMPLATE_PATH.read_text(encoding="utf-8"))
 
 
 def gerar_post(tema: str) -> str:
+    """Gera o texto do post a partir de um tema utilizando a API da OpenAI."""
     estilo = _carregar_estilo()
     prompt = f"{estilo}\n\nTema: {tema}"
     try:
@@ -49,6 +52,7 @@ def gerar_post(tema: str) -> str:
 
 
 def salvar_post(tema: str, conteudo: str) -> Path:
+    """Salva o conteúdo em arquivo Markdown e retorna o caminho criado."""
     slug = "-".join(tema.lower().split())
     filename = datetime.now().strftime(f"%Y%m%d_%H%M%S_{slug}.md")
     OUTPUT_DIR.mkdir(exist_ok=True)
