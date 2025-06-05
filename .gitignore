@@ -133,3 +133,4 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .cache/
+posts/
