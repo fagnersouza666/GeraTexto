@@ -4,6 +4,34 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.2.7] - 2025-06-05
+
+### 🔄 Substituição de Fonte: Google Trends → TechCrunch
+- **Removido**: Google Trends (erro 404 constante)
+- **Adicionado**: TechCrunch RSS feed para tendências de tecnologia
+- **Implementado**: Parser XML para RSS feeds
+- **Melhorado**: Mix diversificado de fontes: Reddit + TechCrunch + HackerNews
+
+### 📈 Fontes de Tendências Atualizadas
+- **Reddit /r/artificial**: Tendências de IA e tecnologia
+- **TechCrunch RSS**: Últimas notícias de tecnologia e startups
+- **HackerNews**: Discussões técnicas e inovação
+- **Fallback expandido**: 14 temas de tecnologia atualizados
+
+### 🛠️ Melhorias Técnicas
+- **RSS Parser**: Sistema robusto de parsing XML
+- **Filtros inteligentes**: Remove títulos genéricos e muito curtos
+- **Limpeza de dados**: Remove sufixos desnecessários dos títulos
+- **Logs informativos**: Feedback sobre número de tendências obtidas
+
+### ✅ Resultado
+- **Erro 404 eliminado**: Sem mais falhas do Google Trends
+- **Tendências relevantes**: Foco em tecnologia, IA e startups
+- **Performance estável**: Fontes confiáveis e rápidas
+- **Diversidade**: Mix equilibrado de fontes
+
+---
+
 ## [2.2.6] - 2025-06-05
 
 ### 🔧 Correção Definitiva: Button_data_invalid RESOLVIDO
