@@ -354,6 +354,48 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.3.0] - 2025-06-05
+
+### 🌐 Nova Funcionalidade: Processamento Automático de URLs
+- **Implementado**: Comando `/gerar` agora aceita URLs além de temas
+- **Adicionado**: Extração automática de conteúdo de páginas web
+- **Criado**: Sistema de resumo inteligente com IA para conteúdo extraído
+- **Integrado**: Geração de posts baseados no resumo do conteúdo da URL
+
+### ✨ Funcionalidades da Extração de URLs
+- **Extração robusta**: Usa função já testada do `gerador_tendencias.py`
+- **Resumo inteligente**: IA analisa e resume conteúdo em 2-3 parágrafos
+- **Título sugerido**: IA gera título atrativo baseado no conteúdo
+- **Post otimizado**: Geração de post engajante usando o estilo padrão
+
+### 🛠️ Melhorias Técnicas
+- **Validação de URL**: Função `eh_url_valida()` para detectar URLs automaticamente
+- **Processamento assíncrono**: Interface mostra progresso da extração
+- **Error handling**: Tratamento robusto de erros de rede e conteúdo
+- **Feedback visual**: Mensagens informativas durante todo o processo
+
+### 🎯 Workflow de URLs
+1. **Detecção**: Bot identifica automaticamente se input é URL ou tema
+2. **Extração**: Obtém conteúdo completo da página web
+3. **Resumo**: IA cria resumo inteligente (máximo 500 palavras)
+4. **Título**: IA sugere título atrativo (máximo 60 caracteres)
+5. **Post**: Gera post engajante baseado no resumo
+6. **Arquivos**: Salva .md + .txt e envia anexo automaticamente
+
+### 📝 Compatibilidade Total
+- **Comando `/gerar`**: Funciona com temas OU URLs
+- **Anexos automáticos**: .txt enviado para URLs também
+- **Geração de imagem**: Botão funciona normalmente para posts de URL
+- **Interface unificada**: Experiência consistente independente da fonte
+
+### ✅ Resultado
+- **Versatilidade máxima**: Bot processa qualquer conteúdo da web
+- **Automação completa**: Do link ao post publicável em minutos
+- **Qualidade garantida**: IA garante resumos relevantes e posts engajantes
+- **Zero configuração**: Funciona automaticamente ao detectar URLs
+
+---
+
 ### Legenda
 - 🚀 Nova versão maior
 - ✨ Nova funcionalidade

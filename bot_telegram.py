@@ -18,7 +18,13 @@ from telegram.request import HTTPXRequest
 import httpx
 
 from utils import verificar_env
-from escritor_ia import gerar_post, salvar_post, salvar_texto_puro
+from escritor_ia import (
+    gerar_post,
+    salvar_post,
+    salvar_texto_puro,
+    eh_url_valida,
+    gerar_post_de_url,
+)
 from imagem_ia import gerar_imagem
 from gerador_tendencias import obter_tendencias
 
@@ -104,21 +110,45 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         if not context.args:
             await update.message.reply_text(
-                "📝 Uso: `/gerar <tema>`", parse_mode="Markdown"
+                "�� Uso: `/gerar <tema ou URL>`\n\n"
+                "💡 **Exemplos:**\n"
+                "• `/gerar Inteligência Artificial`\n"
+                "• `/gerar https://example.com/artigo`",
+                parse_mode="Markdown",
             )
             return
 
-        tema = " ".join(context.args)
+        input_usuario = " ".join(context.args)
 
         # Enviar mensagem de processamento
         processing_msg = await update.message.reply_text("🔄 Gerando post...")
 
         try:
-            post = gerar_post(tema)
-            arquivo = salvar_post(tema, post)
+            # Verificar se é uma URL
+            if eh_url_valida(input_usuario):
+                # Processar URL
+                await processing_msg.edit_text("🌐 Extraindo conteúdo da URL...")
 
-            # Salvar também arquivo .txt para anexar
-            arquivo_txt = salvar_texto_puro(tema, post)
+                try:
+                    titulo, post = gerar_post_de_url(input_usuario)
+                    await processing_msg.edit_text(
+                        "📝 Gerando post baseado no conteúdo extraído..."
+                    )
+
+                except Exception as e:
+                    await processing_msg.edit_text(
+                        f"❌ Erro ao processar URL: {str(e)}"
+                    )
+                    return
+            else:
+                # Processar como tema normal
+                tema = input_usuario
+                titulo = tema
+                post = gerar_post(tema)
+
+            # Salvar arquivos
+            arquivo = salvar_post(titulo, post)
+            arquivo_txt = salvar_texto_puro(titulo, post)
 
             # Criar botão para adicionar imagem com callback_data seguro
             callback_img = f"img|{arquivo}"
@@ -142,8 +172,15 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 ]
             ]
 
+            # Mostrar origem se foi de URL
+            origem_texto = (
+                f"\n🌐 **Baseado em:** {input_usuario}"
+                if eh_url_valida(input_usuario)
+                else ""
+            )
+
             await processing_msg.edit_text(
-                f"✍️ **Título:** {tema}\n\n{post}",
+                f"✍️ **Título:** {titulo}{origem_texto}\n\n{post}",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )

@@ -2,7 +2,7 @@
 
 **Bot Telegram para geração automatizada de conteúdo com IA**
 
-Versão: **2.2.9** | Status: ✅ **Funcional** | Anexos: ✅ **Arquivos .txt enviados automaticamente** | Fontes: Reddit + TechCrunch + HackerNews
+Versão: **2.3.0** | Status: ✅ **Funcional** | URLs: ✅ **Extração e resumo automático** | Anexos: ✅ **Arquivos .txt enviados automaticamente** | Fontes: Reddit + TechCrunch + HackerNews
 
 ## 📋 Descrição
 
@@ -11,6 +11,7 @@ O GeraTexto Bot é um bot do Telegram que utiliza inteligência artificial para 
 ### ✨ Principais Recursos
 
 - 🎯 **Geração de Posts**: Crie posts sobre qualquer tema usando IA
+- 🌐 **Processamento de URLs**: Extraia e resuma conteúdo de qualquer página web automaticamente
 - 📈 **Tendências Inteligentes**: Clique em tendências do Reddit, TechCrunch e HackerNews
 - 🧠 **Processamento Inteligente**: Sistema que extrai assuntos principais de tendências longas
 - 🎨 **Imagens com IA**: Adicione imagens geradas por IA aos seus posts
@@ -80,7 +81,7 @@ OPENAI_IMAGE_MODEL=dall-e-3
 ## 📱 Comandos Disponíveis
 
 - `/start` - Inicializar o bot e ver comandos
-- `/gerar <tema>` - Gerar post sobre um tema específico
+- `/gerar <tema ou URL>` - Gerar post sobre um tema específico ou extrair conteúdo de URL
 - `/tendencias` - Ver tendências atuais com botões interativos
 - `/status` - Verificar status e conectividade do bot
 
@@ -90,7 +91,16 @@ OPENAI_IMAGE_MODEL=dall-e-3
 ```
 /gerar Inteligência Artificial no futuro
 ```
-O bot enviará o post completo e automaticamente um arquivo .txt como anexo para fácil cópia.
+
+### Gerar Post de URL
+```
+/gerar https://techcrunch.com/artigo-interessante
+```
+O bot irá:
+1. Extrair todo o conteúdo da página
+2. Resumir as informações mais importantes 
+3. Gerar um post engajante baseado no resumo
+4. Enviar arquivo .txt como anexo automaticamente
 
 ### Usar Tendências Interativas
 1. Digite `/tendencias`
