@@ -1,15 +1,17 @@
 FROM python:3.10-slim
 
-# Configurar variáveis de ambiente
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivos do projeto
+# Copiar arquivos de dependências offline
+COPY docker-deps/ /app/docker-deps/
+COPY docker-requirements.txt requirements.txt
+
+# Copiar código da aplicação
 COPY . .
 
-# Tornar start.sh executável (feito na cópia, não via RUN)
-# Comando de execução que já instala dependências offline
-CMD ["./start.sh"]
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
+    CMD python3 /app/healthcheck.py
+
+# Comando de inicialização
+CMD ["bash", "start.sh"]

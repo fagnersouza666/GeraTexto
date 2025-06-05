@@ -1,212 +1,204 @@
-# GeraTexto - Bot Telegram para Geração de Conteúdo
+# 🤖 GeraTexto Bot
 
-Bot do Telegram que gera posts, imagens e analisa tendências usando IA.
+Bot Telegram inteligente para geração automática de conteúdo usando IA. Cria posts personalizados, gera imagens com DALL-E e acompanha tendências atuais.
 
-## 🚀 Execução via Docker
+## ✨ Funcionalidades
 
-Execute o bot com um único comando:
+- 📝 **Geração de Posts**: Criação de conteúdo personalizado via IA
+- 🎨 **Geração de Imagens**: Criação de imagens com DALL-E
+- 📈 **Tendências**: Acompanhamento de tópicos em alta
+- 🔍 **Status**: Monitoramento do status do bot
+- 🐳 **Dockerizado**: Execução robusta com Docker
+
+## 🚀 Instalação
+
+### Pré-requisitos
+
+- Python 3.10+
+- Docker e Docker Compose
+- Tokens de API do Telegram e OpenAI
+
+### 1. Clone o Repositório
 
 ```bash
-./run-docker.sh
+git clone <url-do-repositorio>
+cd GeraTexto
 ```
 
-### Configuração Necessária
+### 2. Configure as Variáveis de Ambiente
 
-O bot requer as seguintes variáveis no arquivo `.env`:
-
-- **TELEGRAM_TOKEN**: Token do bot (obtenha com @BotFather)
-- **OPENAI_API_KEY**: Chave da API OpenAI (platform.openai.com)
-- **OPENAI_MODEL**: Modelo a ser usado (padrão: gpt-4o-mini)
-
-### Como Obter as Chaves
-
-1. **Token Telegram**: 
-   - Fale com @BotFather no Telegram
-   - Use o comando `/newbot`
-   - Siga as instruções para criar seu bot
-
-2. **Chave OpenAI**:
-   - Acesse [platform.openai.com](https://platform.openai.com)
-   - Vá em "API Keys"
-   - Crie uma nova chave
-
-### Modelos OpenAI Disponíveis
-
-O modelo é configurado via variável `OPENAI_MODEL` no arquivo `.env`:
-
-- **gpt-4o-mini** (padrão) - Mais rápido e econômico
-- **gpt-4o** - Mais avançado, maior qualidade
-- **gpt-3.5-turbo** - Alternativa mais barata
-
-## 🐳 Solução Docker Offline ✅ FUNCIONANDO
-
-**Status: IMPLEMENTAÇÃO BEM-SUCEDIDA** 🎉
-
-O projeto inclui uma solução robusta **testada e funcionando** para problemas de rede no Docker:
-
-- ✅ **Dependências pré-baixadas**: 32 wheels Python 3.10 na pasta `docker-deps/`
-- ✅ **Instalação offline primeiro**: Script `start.sh` instala offline antes de tentar online
-- ✅ **Build 100% funcional**: Container criado sem erros de network
-- ✅ **Todas as dependências instaladas**: OpenAI, Telegram Bot, PyTrends, etc.
-- ✅ **DNS corrigido**: Problema de resolução de nomes resolvido via docker-compose
-
-### Scripts Disponíveis
-
-**Execução Principal**:
 ```bash
-./run-docker.sh              # Script principal (build + run)
+cp .env.example .env
 ```
 
-**Correção de Problemas**:
+Edite o arquivo `.env` com suas credenciais:
+
+```env
+TELEGRAM_TOKEN=seu_token_telegram
+OPENAI_API_KEY=sua_chave_openai
+OPENAI_MODEL=gpt-3.5-turbo
+```
+
+### 3. Execução Local (Desenvolvimento)
+
 ```bash
-./corrigir_docker_dns.sh     # Corrige problemas específicos de DNS
-docker-compose up -d         # Alternativa robusta
+# Criar ambiente virtual
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Instalar dependências
+pip install -r requirements.txt
+
+# Executar bot
+python bot_telegram.py
 ```
 
-**Diagnóstico**:
+### 4. Execução com Docker (Produção)
+
 ```bash
-python verificar_conectividade.py  # Testa conectividade do host
-docker logs -f geratexto-bot       # Logs em tempo real
+# Construir e executar
+docker build -t geratexto-bot .
+docker run -d --name geratexto-bot \
+  --restart unless-stopped \
+  --network host \
+  --env-file .env \
+  -v $(pwd)/posts:/app/posts \
+  -v $(pwd)/templates:/app/templates \
+  geratexto-bot
 ```
 
-### Logs de Sucesso Confirmados
+## 📋 Comandos do Bot
 
-A solução offline foi **testada e validada**:
-```
-📦 Instalando dependências offline...
-Successfully installed Jinja2-3.1.2 MarkupSafe-3.0.2 Pillow-10.1.0 
-[...] openai-1.3.8 [...] python-telegram-bot-20.3 [...]
-✅ Dependências offline instaladas
-✅ Dependências online instaladas
-🚀 Iniciando bot Telegram...
-```
+- `/start` - Inicializar o bot e ver comandos disponíveis
+- `/gerar <tema>` - Gerar post sobre um tema específico
+- `/tendencias` - Ver tendências atuais do Google Trends
+- `/status` - Verificar status e uptime do bot
 
-**DNS Resolvido**: Erro mudou de "DNS failure" para "ConnectTimeout", confirmando que DNS funciona!
+## 🔧 Arquitetura
 
-### Estrutura de Arquivos
+### Componentes Principais
 
-```
-GeraTexto/
-├── docker-deps/          # ✅ 32 dependências offline (wheels Python 3.10)
-├── start.sh             # ✅ Script de inicialização offline/online
-├── Dockerfile           # ✅ Configuração Docker simplificada
-├── run-docker.sh        # ✅ Script principal de execução
-├── .env                 # Configurações (criar baseado em .env.example)
-└── ...
-```
+- **`bot_telegram.py`** - Bot principal com handlers Telegram
+- **`escritor_ia.py`** - Geração de texto com OpenAI
+- **`imagem_ia.py`** - Geração de imagens com DALL-E
+- **`gerador_tendencias.py`** - Busca de tendências Google Trends
+- **`healthcheck.py`** - Verificação de saúde do container
+- **`verificar_conectividade.py`** - Diagnóstico de conectividade
 
-## 📋 Comandos Úteis
+### Melhorias de Conectividade
 
-Após executar `./run-docker.sh`:
+- ✅ **Sistema de Retry**: Tentativas automáticas com backoff exponencial
+- ✅ **Verificação DNS**: Resolução de nomes antes da inicialização
+- ✅ **Healthcheck**: Monitoramento automático da saúde do container
+- ✅ **Network Host**: Uso da rede do host para evitar problemas de DNS
+- ✅ **Configuração Robusta**: Timeouts e configurações otimizadas
+
+## 🐛 Solução de Problemas
+
+### Problemas de Conectividade
+
+Se o bot não conseguir conectar:
+
+1. **Verificar conectividade**:
+   ```bash
+   python verificar_conectividade.py
+   ```
+
+2. **Verificar logs do container**:
+   ```bash
+   docker logs geratexto-bot
+   ```
+
+3. **Reiniciar serviços Docker**:
+   ```bash
+   sudo systemctl restart docker
+   ```
+
+### Problemas de DNS
+
+- O bot usa automaticamente `--network host` para evitar problemas de DNS
+- Servidores DNS configurados: 8.8.8.8, 8.8.4.4, 1.1.1.1
+- Hosts mapeados para APIs principais
+
+## 📊 Monitoramento
+
+### Healthcheck
+
+O container inclui healthcheck automático que verifica:
+- Resolução DNS
+- Conectividade HTTP
+- Status do bot Telegram
+
+### Logs
 
 ```bash
 # Ver logs em tempo real
 docker logs -f geratexto-bot
 
-# Parar o bot
-docker stop geratexto-bot
-
-# Reiniciar o bot
-docker restart geratexto-bot
-
-# Remover completamente
-docker rm -f geratexto-bot
+# Ver últimas 50 linhas
+docker logs geratexto-bot --tail 50
 ```
 
-## 🎯 Funcionalidades
+## 🔄 Dependências
 
-- **Geração de Posts**: Cria conteúdo sobre qualquer tema
-- **Geração de Imagens**: Cria imagens usando DALL-E 3
-- **Análise de Tendências**: Monitora tendências do Google Trends
-- **Templates Personalizáveis**: Sistema de templates Jinja2
-- **Configuração Flexível**: Modelo OpenAI configurável via .env
-
-## 🔧 Solução de Problemas
-
-### ✅ Dependências Offline - RESOLVIDO
-
-O projeto **já inclui** todas as dependências necessárias offline. Se aparecer erro de módulo:
-1. **Não é problema do código** - as dependências estão funcionando
-2. **Verificar logs**: Use `docker logs geratexto-bot` para diagnóstico
-3. **Rebuild**: Execute `./run-docker.sh` novamente se necessário
-
-### 🌐 Problemas de DNS/Conectividade
-
-**Nota Importante**: Se o bot falhar com erro `Temporary failure in name resolution`:
-- ✅ **As dependências foram instaladas corretamente**
-- ✅ **O código está funcionando perfeitamente**
-- ⚠️ **É um problema de conectividade do ambiente** (DNS, firewall, proxy)
-
-**Script de Diagnóstico**: Use o verificador automático:
-```bash
-# Executar no host (fora do Docker)
-python verificar_conectividade.py
+```
+python-telegram-bot==20.3  # API Telegram
+openai==1.3.8             # API OpenAI
+requests==2.31.0          # HTTP requests
+python-dotenv==1.0.0      # Variáveis ambiente
+pytrends==4.9.2           # Google Trends
+jinja2==3.1.2             # Templates
+Pillow==10.1.0            # Processamento imagem
+httpx==0.24.1             # Cliente HTTP async
 ```
 
-**Soluções para conectividade**:
-1. **Verificar internet**: Teste `ping google.com` no host
-2. **Docker network**: Reiniciar Docker se necessário
-3. **Firewall/Proxy**: Verificar bloqueios de rede
-4. **DNS**: Verificar resolução de nomes
-
-### Erro "ModuleNotFoundError"
-
-**Status**: ✅ RESOLVIDO - Dependências offline funcionando
-
-Se ainda aparecer (improvável):
-1. **Verificar logs**: Confirme instalação offline bem-sucedida
-2. **Rebuild**: Execute `./run-docker.sh` novamente
-3. **Dependências**: Pasta `docker-deps/` deve ter 32 arquivos .whl
-
-## 📝 Versão Atual
-
-**v2.1.1** - Solução Docker offline FUNCIONANDO + Modelo OpenAI configurável
-
-## 🤝 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature
-3. Commit suas mudanças
-4. Push para a branch
-5. Abra um Pull Request
-
-## 📁 Estrutura do Projeto
+## 📝 Estrutura de Arquivos
 
 ```
 GeraTexto/
-├── bot_telegram.py      # Bot principal
-├── escritor_ia.py       # Geração de textos
-├── imagem_ia.py         # Geração de imagens
-├── gerador_tendencias.py # Análise de tendências
-├── utils.py             # Utilitários e configuração
-├── prompts/             # Templates de prompts
-├── templates/           # Templates de posts
+├── bot_telegram.py         # Bot principal
+├── escritor_ia.py          # Geração de texto
+├── imagem_ia.py           # Geração de imagem
+├── gerador_tendencias.py  # Tendências
+├── healthcheck.py         # Healthcheck
+├── verificar_conectividade.py # Diagnóstico
+├── utils.py               # Utilitários
+├── requirements.txt       # Dependências Python
+├── Dockerfile            # Configuração Docker
+├── start.sh             # Script inicialização
+├── .env.example         # Exemplo variáveis
 ├── posts/               # Posts gerados
-└── .env                 # Configurações (criar baseado em .env.example)
+├── templates/           # Templates HTML
+└── docker-deps/         # Dependências offline
 ```
 
-## 🔧 Dependências ✅ OFFLINE
+## 🔒 Segurança
 
-**Status**: Todas as 32 dependências funcionando offline
+- ✅ Variáveis de ambiente para credenciais
+- ✅ Não exposição de tokens nos logs
+- ✅ Validação de entrada do usuário
+- ✅ Tratamento de erros robusto
 
-- python-telegram-bot==20.3 ✅
-- openai==1.3.8 ✅
-- requests==2.31.0 ✅
-- python-dotenv==1.0.0 ✅
-- pytrends==4.9.2 ✅
-- jinja2==3.1.2 ✅
-- Pillow==10.1.0 ✅
-- + 25 dependências secundárias ✅
+## 📈 Changelog / Atualizações Recentes
 
-## 📝 Notas Técnicas
+### v2.1.0 (2025-06-05)
+- ✅ **Resolução de conectividade**: Sistema robusto de retry e backoff exponencial
+- ✅ **Healthcheck Docker**: Monitoramento automático da saúde do container
+- ✅ **Network Host**: Uso da rede do host para resolver problemas de DNS
+- ✅ **Verificação DNS**: Teste de conectividade antes da inicialização
+- ✅ **Logs melhorados**: Sistema de logging mais detalhado
+- ✅ **Configuração simplificada**: Remoção de configurações complexas desnecessárias
 
-- ✅ O modelo OpenAI é configurado via `.env` e usado por todos os módulos
-- ✅ Posts são salvos na pasta `posts/` com timestamp
-- ✅ Imagens são geradas usando DALL-E 3
-- ✅ Tendências são obtidas via Google Trends
-- ✅ Instalação offline 100% funcional com 32 wheels pré-baixadas
+### v2.0.0 (2025-06-05)
+- 🔄 Migração para python-telegram-bot v20.3
+- 🎨 Interface melhorada com emojis e formatação
+- 📊 Sistema de status e monitoramento
 
-## 📄 Licença
+## 🆔 Versão Atual
 
-MIT License - veja o arquivo LICENSE para detalhes.
+**v2.1.0** - Bot de geração de conteúdo com conectividade robusta
+
+---
+
+💡 **Desenvolvido com foco em estabilidade e conectividade confiável**
 

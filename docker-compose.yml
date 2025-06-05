@@ -18,17 +18,23 @@ services:
       - 8.8.8.8
       - 8.8.4.4
       - 1.1.1.1
+      - 1.0.0.1
     extra_hosts:
       - "api.telegram.org:149.154.167.220"
       - "api.openai.com:104.18.7.192"
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1
+    healthcheck:
+      test: [ "CMD", "python3", "/app/healthcheck.py" ]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
 
 networks:
   geratexto-network:
     driver: bridge
     driver_opts:
       com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.driver.mtu: "1500"
     ipam:
       config:
         - subnet: 172.20.0.0/16
