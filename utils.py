@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 from dotenv import load_dotenv
 
-REQUIRED_VARS = ("TELEGRAM_TOKEN", "OPENAI_API_KEY")
+REQUIRED_VARS = ("TELEGRAM_TOKEN", "OPENAI_API_KEY", "OPENAI_MODEL")
 
 
 def verificar_env() -> None:
@@ -15,3 +15,8 @@ def verificar_env() -> None:
             f"Defina as variáveis de ambiente {nomes} (.env ou sistema)."
         )
 
+
+def obter_modelo_openai() -> str:
+    """Retorna o modelo OpenAI configurado."""
+    load_dotenv()
+    return os.getenv("OPENAI_MODEL", "gpt-4o-mini")

@@ -5,18 +5,18 @@ from pathlib import Path
 
 import logging
 
-from utils import verificar_env
+from utils import verificar_env, obter_modelo_openai
 
-import openai
+from openai import OpenAI
 from jinja2 import Template
 
 BASE_DIR = Path(__file__).resolve().parent
 ESTILO_PATH = BASE_DIR / "prompts" / "estilo.txt"
 TEMPLATE_PATH = BASE_DIR / "templates" / "artigo.md"
-OUTPUT_DIR = BASE_DIR / "conteudos_gerados"
+OUTPUT_DIR = BASE_DIR / "posts"
 
 verificar_env()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 logger = logging.getLogger(__name__)
 
@@ -35,15 +35,18 @@ def gerar_post(tema: str) -> str:
     """Gera o texto do post a partir de um tema utilizando a API da OpenAI."""
     estilo = _carregar_estilo()
     prompt = f"{estilo}\n\nTema: {tema}"
+    modelo = obter_modelo_openai()
+
     try:
-        resposta = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+        resposta = client.chat.completions.create(
+            model=modelo,
             messages=[{"role": "user", "content": prompt}],
         )
     except Exception:
         logger.exception("Erro ao chamar OpenAI ChatCompletion")
         return ""
-    texto = resposta["choices"][0]["message"]["content"].strip()
+
+    texto = resposta.choices[0].message.content.strip()
     linhas = texto.splitlines()
     gancho = linhas[0] if linhas else ""
     corpo = "\n".join(linhas[1:]) if len(linhas) > 1 else ""
@@ -68,4 +71,3 @@ if __name__ == "__main__":
     post = gerar_post(tema)
     arquivo = salvar_post(tema, post)
     print(f"Post salvo em {arquivo}")
-

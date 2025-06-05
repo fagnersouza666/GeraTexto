@@ -1,6 +1,6 @@
-.venv
-.git
-__pycache__
+.venv/
+.git/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd

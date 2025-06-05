@@ -12,6 +12,7 @@ if [ ! -f ".env" ]; then
     echo "🔧 Configure suas chaves de API no arquivo .env antes de continuar:"
     echo "   - TELEGRAM_TOKEN=seu_token_aqui"
     echo "   - OPENAI_API_KEY=sua_chave_aqui"
+    echo "   - OPENAI_MODEL=gpt-4o-mini"
     echo ""
     echo "📋 Como obter as chaves:"
     echo "   🤖 Telegram: Fale com @BotFather e use /newbot"
@@ -23,17 +24,19 @@ fi
 
 # Verificar se as variáveis estão configuradas
 source .env
-if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$OPENAI_API_KEY" ] || [ "$TELEGRAM_TOKEN" = "your_telegram_token_here" ] || [ "$OPENAI_API_KEY" = "your_openai_key_here" ]; then
-    echo "❌ Configure as variáveis TELEGRAM_TOKEN e OPENAI_API_KEY no arquivo .env"
+if [ -z "$TELEGRAM_TOKEN" ] || [ -z "$OPENAI_API_KEY" ] || [ -z "$OPENAI_MODEL" ] || [ "$TELEGRAM_TOKEN" = "your_telegram_token_here" ] || [ "$OPENAI_API_KEY" = "your_openai_key_here" ]; then
+    echo "❌ Configure as variáveis TELEGRAM_TOKEN, OPENAI_API_KEY e OPENAI_MODEL no arquivo .env"
     echo "💡 Edite o arquivo .env com suas chaves reais"
     echo ""
     echo "📋 Exemplo de configuração:"
     echo "   TELEGRAM_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
     echo "   OPENAI_API_KEY=sk-proj-abcd1234..."
+    echo "   OPENAI_MODEL=gpt-4o-mini"
     exit 1
 fi
 
 echo "✅ Arquivo .env configurado"
+echo "🤖 Usando modelo: $OPENAI_MODEL"
 
 # Parar containers antigos se existirem
 echo "🛑 Parando containers antigos..."
