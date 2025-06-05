@@ -2,7 +2,7 @@
 
 **Bot Telegram para geração automatizada de conteúdo com IA**
 
-Versão: **2.2.4** | Status: ✅ **Funcional**
+Versão: **2.2.5** | Status: ✅ **Funcional**
 
 ## 📋 Descrição
 
@@ -11,7 +11,8 @@ O GeraTexto Bot é um bot do Telegram que utiliza inteligência artificial para 
 ### ✨ Principais Recursos
 
 - 🎯 **Geração de Posts**: Crie posts sobre qualquer tema usando IA
-- 📈 **Tendências Interativas**: Clique em tendências para gerar posts automaticamente
+- 📈 **Tendências Inteligentes**: Clique em tendências com resumos otimizados para gerar posts
+- 🧠 **Processamento Inteligente**: Sistema que extrai assuntos principais de tendências longas
 - 🎨 **Imagens com IA**: Adicione imagens geradas por IA aos seus posts
 - 💾 **Salvamento Automático**: Posts salvos automaticamente em arquivos
 - 🔄 **Sistema Robusto**: Reconexão automática e tratamento de erros
@@ -173,7 +174,7 @@ O bot inclui healthcheck que verifica:
 
 ## 🔄 Atualizações Recentes
 
-### Versão 2.2.4 (Atual)
+### Versão 2.2.5 (Atual)
 - ✅ **Corrigido**: Problemas de conectividade Docker resolvidos
 - ✅ **Simplificado**: Verificações de rede menos restritivas
 - ✅ **Melhorado**: Sistema de inicialização mais robusto

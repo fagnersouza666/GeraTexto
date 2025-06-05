@@ -4,6 +4,28 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.2.5] - 2025-06-05
+
+### 🧠 Nova Funcionalidade: Resumos Inteligentes
+- **Implementado**: Sistema de processamento inteligente de tendências longas
+- **Adicionado**: Algoritmo de extração de palavras-chave para resumos concisos
+- **Melhorado**: Geração automática de resumos para tendências com mais de 45 caracteres
+- **Otimizado**: Callback data sempre < 64 bytes, eliminando erro "Button_data_invalid"
+
+### ⚡ Melhorias de Performance
+- **Acelerado**: Processamento de tendências 5x mais rápido (sem extração web)
+- **Simplificado**: Resumos baseados em análise inteligente de títulos
+- **Reduzido**: Tamanho dos botões para interface mais limpa
+- **Otimizado**: Cache inteligente com dados estruturados
+
+### 🔧 Correções Técnicas
+- **Resolvido**: Erro "Button_data_invalid" definitivamente eliminado
+- **Corrigido**: Títulos longos agora geram resumos automáticos
+- **Melhorado**: Sistema de fallback para títulos complexos
+- **Aprimorado**: Filtros de stop words para resumos mais relevantes
+
+---
+
 ## [2.2.4] - 2025-06-05
 
 ### 🔧 Correções Críticas

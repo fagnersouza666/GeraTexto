@@ -157,20 +157,30 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             keyboard = []
 
             for i, t in enumerate(topicos):
-                # Armazenar tendência com índice
+                # Armazenar tanto título original quanto resumo
                 cache_key = f"{update.effective_chat.id}_{i}"
-                context.bot._tendencias_cache[cache_key] = t.titulo
 
-                # Título do botão limpo
-                titulo_botao = t.titulo[:40] + "..." if len(t.titulo) > 40 else t.titulo
+                # Usar resumo se disponível, senão título original
+                tema_para_post = t.resumo if t.resumo else t.titulo
+                titulo_para_botao = (
+                    t.resumo[:35] + "..."
+                    if t.resumo and len(t.resumo) > 35
+                    else (t.resumo or t.titulo[:35] + "...")
+                )
 
-                # Usar índice como callback_data (muito mais seguro)
+                context.bot._tendencias_cache[cache_key] = {
+                    "titulo": t.titulo,
+                    "tema_post": tema_para_post,
+                    "link": t.link,
+                }
+
+                # Usar índice como callback_data (seguro)
                 callback_data = f"trend_{i}"
 
                 keyboard.append(
                     [
                         InlineKeyboardButton(
-                            f"📝 {titulo_botao}", callback_data=callback_data
+                            f"📝 {titulo_para_botao}", callback_data=callback_data
                         )
                     ]
                 )
@@ -231,12 +241,12 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 indice = int(data.split("_")[1])
                 cache_key = f"{query.message.chat.id}_{indice}"
 
-                # Recuperar título da tendência do cache
+                # Recuperar dados da tendência do cache
                 if (
                     hasattr(context.bot, "_tendencias_cache")
                     and cache_key in context.bot._tendencias_cache
                 ):
-                    tendencia = context.bot._tendencias_cache[cache_key]
+                    tendencia_data = context.bot._tendencias_cache[cache_key]
                 else:
                     await query.message.edit_text(
                         "❌ Tendência não encontrada. Tente `/tendencias` novamente."
@@ -244,12 +254,13 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     return
 
                 await query.message.edit_text(
-                    f"🔄 Gerando post sobre: **{tendencia}**...", parse_mode="Markdown"
+                    f"🔄 Gerando post sobre: **{tendencia_data['titulo']}**...",
+                    parse_mode="Markdown",
                 )
 
-                # Gerar post sobre a tendência
-                post = gerar_post(tendencia)
-                arquivo = salvar_post(tendencia, post)
+                # Gerar post usando o tema processado (resumo inteligente)
+                post = gerar_post(tendencia_data["tema_post"])
+                arquivo = salvar_post(tendencia_data["titulo"], post)
 
                 # Criar botão para adicionar imagem
                 keyboard = [
@@ -261,7 +272,7 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 ]
 
                 await query.message.edit_text(
-                    f"📈 **Tendência:** {tendencia}\n\n{post}",
+                    f"📈 **Tendência:** {tendencia_data['titulo']}\n\n{post}",
                     reply_markup=InlineKeyboardMarkup(keyboard),
                     parse_mode="Markdown",
                 )

@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import List
 import requests
 from pytrends.request import TrendReq
+import re
+from urllib.parse import urlparse
 
 USER_AGENT = "GeraTextoBot/0.1"
 REDDIT_URL = "https://www.reddit.com/r/artificial/hot.json?limit=10"
@@ -16,6 +18,136 @@ logger = logging.getLogger(__name__)
 class Tendencia:
     titulo: str
     link: str | None = None
+    resumo: str | None = None  # Novo campo para resumo do conteúdo
+
+
+def extrair_texto_pagina(url: str) -> str:
+    """Extrai texto principal de uma página web"""
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        # Extrair texto básico removendo HTML
+        content = response.text
+
+        # Remover scripts e styles
+        content = re.sub(
+            r"<script[^>]*>.*?</script>", "", content, flags=re.DOTALL | re.IGNORECASE
+        )
+        content = re.sub(
+            r"<style[^>]*>.*?</style>", "", content, flags=re.DOTALL | re.IGNORECASE
+        )
+
+        # Remover tags HTML
+        content = re.sub(r"<[^>]+>", " ", content)
+
+        # Limpar espaços extras
+        content = re.sub(r"\s+", " ", content)
+
+        # Pegar os primeiros 500 caracteres de texto limpo
+        texto_limpo = content.strip()[:500]
+
+        return texto_limpo
+
+    except Exception as e:
+        logger.warning(f"Erro ao extrair conteúdo de {url}: {e}")
+        return ""
+
+
+def gerar_resumo_tendencia(titulo: str, conteudo: str = "") -> str:
+    """Gera um resumo inteligente e conciso da tendência"""
+
+    # Primeira tentativa: extrair palavras-chave do título
+    palavras_titulo = titulo.lower().split()
+
+    # Filtrar palavras relevantes do título
+    stop_words = {
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "but",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "with",
+        "by",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "that",
+        "this",
+        "its",
+        "it",
+        "since",
+        "last",
+        "more",
+        "than",
+        "times",
+        "alleging",
+    }
+
+    palavras_importantes_titulo = [
+        p for p in palavras_titulo if len(p) > 2 and p not in stop_words
+    ]
+
+    # Se o título é curto o suficiente, usar ele diretamente
+    if len(titulo) <= 45:
+        return titulo
+
+    # Se tem palavras importantes do título, criar resumo com elas
+    if palavras_importantes_titulo:
+        # Pegar as 4-6 palavras mais importantes
+        palavras_chave = " ".join(palavras_importantes_titulo[:6])
+        if len(palavras_chave) > 40:
+            palavras_chave = " ".join(palavras_importantes_titulo[:4])
+
+        # Capitalizar primeira palavra
+        if palavras_chave:
+            palavras_chave = palavras_chave.capitalize()
+            return palavras_chave
+
+    # Fallback: truncar título de forma inteligente
+    if len(titulo) > 45:
+        # Tentar cortar em uma palavra completa
+        truncado = titulo[:45]
+        ultimo_espaco = truncado.rfind(" ")
+        if ultimo_espaco > 20:  # Se tem espaço em posição razoável
+            return titulo[:ultimo_espaco] + "..."
+        else:
+            return titulo[:45] + "..."
+
+    return titulo
+
+
+def processar_tendencia_com_conteudo(tendencia: Tendencia) -> Tendencia:
+    """Processa uma tendência gerando resumo otimizado"""
+
+    # Gerar resumo principalmente baseado no título (mais rápido e confiável)
+    resumo = gerar_resumo_tendencia(tendencia.titulo)
+
+    return Tendencia(titulo=tendencia.titulo, link=tendencia.link, resumo=resumo)
 
 
 def tendencias_reddit(top_n: int = 5) -> List[Tendencia]:
@@ -100,7 +232,29 @@ def obter_tendencias() -> List[Tendencia]:
             if tema not in temas and len(temas) < 8:
                 temas.append(tema)
 
-    return temas
+    # Processar tendências para extrair conteúdo e gerar resumos
+    logger.info("Processando tendências com conteúdo inteligente...")
+    temas_processados = []
+
+    for tema in temas[:8]:  # Limitar a 8 para não demorar muito
+        try:
+            tema_processado = processar_tendencia_com_conteudo(tema)
+            temas_processados.append(tema_processado)
+        except Exception as e:
+            logger.warning(f"Erro ao processar tendência {tema.titulo}: {e}")
+            # Em caso de erro, usar a tendência original com título limitado
+            tema_limitado = Tendencia(
+                titulo=(
+                    tema.titulo[:50] + "..." if len(tema.titulo) > 50 else tema.titulo
+                ),
+                link=tema.link,
+                resumo=(
+                    tema.titulo[:50] + "..." if len(tema.titulo) > 50 else tema.titulo
+                ),
+            )
+            temas_processados.append(tema_limitado)
+
+    return temas_processados
 
 
 if __name__ == "__main__":
