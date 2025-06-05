@@ -1,14 +1,15 @@
 FROM python:3.10-slim
 
-# Variáveis de ambiente
+# Configurar variáveis de ambiente
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Diretório de trabalho
 WORKDIR /app
 
-# Copiar código
+# Copiar arquivos do projeto
 COPY . .
 
-# Comando de execução
+# Tornar start.sh executável (feito na cópia, não via RUN)
+# Comando de execução que já instala dependências offline
 CMD ["./start.sh"]

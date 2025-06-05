@@ -43,6 +43,10 @@ echo "🛑 Parando containers antigos..."
 docker stop geratexto-bot 2>/dev/null || true
 docker rm geratexto-bot 2>/dev/null || true
 
+# Remover redes antigas se existirem
+echo "🌐 Configurando rede Docker..."
+docker network rm geratexto-network 2>/dev/null || true
+
 # Construir a imagem
 echo "🔨 Construindo imagem Docker..."
 docker build -t geratexto . || {
@@ -50,21 +54,60 @@ docker build -t geratexto . || {
     echo "💡 Tentando com docker-compose..."
     docker-compose down 2>/dev/null
     docker-compose up --build -d
+    
+    # Verificar se funcionou
+    sleep 5
+    if docker logs geratexto-bot 2>/dev/null | grep -q "✅ Dependências"; then
+        echo "✅ GeraTexto iniciado via docker-compose!"
+        echo ""
+        echo "📋 Comandos úteis:"
+        echo "   Ver logs:        docker logs -f geratexto-bot"
+        echo "   Parar bot:       docker-compose down"
+        echo "   Reiniciar bot:   docker-compose restart"
+    else
+        echo "❌ Problemas persistem. Verificar logs: docker logs geratexto-bot"
+    fi
     exit $?
 }
 
-# Executar o container
-echo "🚀 Iniciando container..."
+# Executar o container com configurações de DNS e rede
+echo "🚀 Iniciando container com configurações de rede..."
 docker run -d \
     --name geratexto-bot \
     --env-file .env \
     --restart unless-stopped \
+    --dns 8.8.8.8 \
+    --dns 8.8.4.4 \
+    --dns 1.1.1.1 \
+    --add-host api.telegram.org:149.154.167.220 \
+    --add-host api.openai.com:104.18.7.192 \
+    --sysctl net.ipv6.conf.all.disable_ipv6=1 \
+    --network-mode bridge \
     -v "$(pwd)/posts:/app/posts" \
     -v "$(pwd)/templates:/app/templates" \
     geratexto
 
-if [ $? -eq 0 ]; then
-    echo "✅ GeraTexto iniciado com sucesso!"
+# Aguardar inicialização e verificar logs
+sleep 5
+
+if docker ps --filter name=geratexto-bot --filter status=running | grep -q geratexto-bot; then
+    echo "✅ Container iniciado! Verificando conectividade..."
+    
+    # Verificar se as dependências foram instaladas
+    if docker logs geratexto-bot 2>/dev/null | grep -q "✅ Dependências offline instaladas"; then
+        echo "✅ Dependências instaladas com sucesso!"
+        
+        # Verificar se há erros de conectividade
+        if docker logs geratexto-bot 2>/dev/null | grep -q "Temporary failure in name resolution"; then
+            echo "⚠️ Ainda há problemas de DNS. Tentando docker-compose..."
+            docker stop geratexto-bot
+            docker rm geratexto-bot
+            docker-compose up -d
+        else
+            echo "🎉 GeraTexto funcionando perfeitamente!"
+        fi
+    fi
+    
     echo ""
     echo "🎉 Bot está rodando! Teste no Telegram:"
     echo "   /start - Inicializar o bot"
@@ -79,8 +122,15 @@ if [ $? -eq 0 ]; then
     echo "   Parar bot:       docker stop geratexto-bot"
     echo "   Reiniciar bot:   docker restart geratexto-bot"
     echo "   Remover bot:     docker rm -f geratexto-bot"
+    echo "   Teste DNS:       docker exec geratexto-bot nslookup google.com"
 else
     echo "❌ Erro ao iniciar container"
     echo "📋 Tentando com docker-compose como fallback..."
+    docker-compose down 2>/dev/null
     docker-compose up -d
+    
+    echo ""
+    echo "📋 Para verificar logs e diagnóstico:"
+    echo "   docker logs -f geratexto-bot"
+    echo "   python verificar_conectividade.py"
 fi 
