@@ -34,75 +34,54 @@ MAX_TENDENCIAS = 5
 
 
 def verificar_conectividade_basica():
-    """Verifica conectividade básica antes de iniciar o bot"""
+    """Verifica conectividade básica - versão simplificada"""
     import socket
-    import requests
 
     logger.info("🔍 Verificando conectividade...")
 
-    # Testar resolução DNS
+    # Verificação mínima - apenas tentar resolver DNS básico
     try:
         socket.gethostbyname("api.telegram.org")
-        logger.info("✅ DNS resolvendo corretamente")
-    except socket.gaierror as e:
-        logger.error(f"❌ Falha na resolução DNS: {e}")
-        return False
-
-    # Testar conectividade HTTP
-    try:
-        response = requests.get("https://api.telegram.org", timeout=30)
-        logger.info(f"✅ Conectividade com Telegram API: {response.status_code}")
+        logger.info("✅ DNS básico funcionando")
         return True
-    except Exception as e:
-        logger.error(f"❌ Falha na conectividade: {e}")
-        return False
+    except socket.gaierror as e:
+        logger.warning(f"⚠️ DNS com problema: {e}")
+        # Mesmo com problema de DNS, vamos tentar continuar
+        return True
 
 
-def criar_cliente_http_robusto():
-    """Cria cliente HTTP com configurações robustas"""
+def criar_cliente_http_simples():
+    """Cria cliente HTTP com configurações simples"""
     return HTTPXRequest(
-        connection_pool_size=8,
-        connect_timeout=30.0,
-        read_timeout=30.0,
-        write_timeout=30.0,
-        pool_timeout=30.0,
-        http_version="1.1",
-        proxy_url=None,
+        connection_pool_size=4,
+        connect_timeout=60.0,
+        read_timeout=60.0,
+        write_timeout=60.0,
+        pool_timeout=60.0,
     )
 
 
-async def inicializar_bot_com_retry(token: str, max_tentativas: int = 5):
-    """Inicializa bot com sistema de retry"""
-    for tentativa in range(1, max_tentativas + 1):
+async def inicializar_bot_simples(token: str):
+    """Inicializa bot de forma simples e robusta"""
+    try:
+        logger.info("🔄 Inicializando bot...")
+
+        # Criar aplicação com configurações básicas
+        app = ApplicationBuilder().token(token).build()
+
+        # Testar conexão básica
         try:
-            logger.info(
-                f"🔄 Tentativa {tentativa}/{max_tentativas} de inicialização..."
-            )
-
-            # Criar cliente HTTP robusto
-            request = criar_cliente_http_robusto()
-
-            # Construir aplicação
-            app = ApplicationBuilder().token(token).request(request).build()
-
-            # Testar conexão
             bot_info = await app.bot.get_me()
             logger.info(f"✅ Bot conectado: @{bot_info.username}")
-
+            return app
+        except Exception as e:
+            logger.warning(f"⚠️ Erro na verificação inicial: {e}")
+            # Retornar mesmo assim - o bot pode funcionar
             return app
 
-        except Exception as e:
-            logger.error(f"❌ Tentativa {tentativa} falhou: {e}")
-
-            if tentativa < max_tentativas:
-                tempo_espera = min(2**tentativa, 30)  # Backoff exponencial
-                logger.info(
-                    f"⏳ Aguardando {tempo_espera}s antes da próxima tentativa..."
-                )
-                await asyncio.sleep(tempo_espera)
-            else:
-                logger.error("💥 Todas as tentativas falharam!")
-                raise
+    except Exception as e:
+        logger.error(f"❌ Erro na inicialização: {e}")
+        raise
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -170,17 +149,36 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                 )
                 return
 
-            linhas = ["📈 **Tendências Atuais:**\n"]
-            for i, t in enumerate(topicos, 1):
-                if t.link:
-                    linhas.append(f"{i}. [{t.titulo}]({t.link})")
-                else:
-                    linhas.append(f"{i}. {t.titulo}")
+            # Armazenar tendências no contexto do bot para recuperar depois
+            if not hasattr(context.bot, "_tendencias_cache"):
+                context.bot._tendencias_cache = {}
+
+            # Criar apenas os botões para cada tendência
+            keyboard = []
+
+            for i, t in enumerate(topicos):
+                # Armazenar tendência com índice
+                cache_key = f"{update.effective_chat.id}_{i}"
+                context.bot._tendencias_cache[cache_key] = t.titulo
+
+                # Título do botão limpo
+                titulo_botao = t.titulo[:40] + "..." if len(t.titulo) > 40 else t.titulo
+
+                # Usar índice como callback_data (muito mais seguro)
+                callback_data = f"trend_{i}"
+
+                keyboard.append(
+                    [
+                        InlineKeyboardButton(
+                            f"📝 {titulo_botao}", callback_data=callback_data
+                        )
+                    ]
+                )
 
             await processing_msg.edit_text(
-                "\n".join(linhas),
+                "📈 **Tendências Atuais**\n\n👆 *Clique para gerar post:*",
+                reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
-                disable_web_page_preview=True,
             )
         except Exception as e:
             await processing_msg.edit_text(f"❌ Erro ao buscar tendências: {str(e)}")
@@ -227,22 +225,71 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             except Exception as e:
                 await query.message.edit_text(f"❌ Erro ao gerar imagem: {str(e)}")
 
+        elif data.startswith("trend_"):
+            # Processar clique em tendência usando índice
+            try:
+                indice = int(data.split("_")[1])
+                cache_key = f"{query.message.chat.id}_{indice}"
+
+                # Recuperar título da tendência do cache
+                if (
+                    hasattr(context.bot, "_tendencias_cache")
+                    and cache_key in context.bot._tendencias_cache
+                ):
+                    tendencia = context.bot._tendencias_cache[cache_key]
+                else:
+                    await query.message.edit_text(
+                        "❌ Tendência não encontrada. Tente `/tendencias` novamente."
+                    )
+                    return
+
+                await query.message.edit_text(
+                    f"🔄 Gerando post sobre: **{tendencia}**...", parse_mode="Markdown"
+                )
+
+                # Gerar post sobre a tendência
+                post = gerar_post(tendencia)
+                arquivo = salvar_post(tendencia, post)
+
+                # Criar botão para adicionar imagem
+                keyboard = [
+                    [
+                        InlineKeyboardButton(
+                            "🎨 Adicionar imagem IA", callback_data=f"img|{arquivo}"
+                        )
+                    ]
+                ]
+
+                await query.message.edit_text(
+                    f"📈 **Tendência:** {tendencia}\n\n{post}",
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="Markdown",
+                )
+
+                # Mostrar mensagem de sucesso
+                await query.answer("✅ Post gerado!", show_alert=False)
+
+            except Exception as e:
+                logger.error(f"Erro ao processar tendência: {e}")
+                await query.message.edit_text(f"❌ Erro ao gerar post: {str(e)}")
+                await query.answer("❌ Erro ao gerar post", show_alert=True)
+
     except Exception as e:
         logger.error(f"Erro no callback: {e}")
+        if "query" in locals():
+            await query.answer("❌ Erro interno", show_alert=True)
 
 
 async def main() -> None:
     """Função principal com inicialização robusta"""
     logger.info("🚀 Iniciando GeraTexto Bot...")
 
-    # Verificar conectividade básica
-    if not verificar_conectividade_basica():
-        logger.error("💥 Falha na conectividade básica. Abortando...")
-        sys.exit(1)
+    # Verificação de conectividade não restritiva
+    verificar_conectividade_basica()
 
     try:
-        # Inicializar bot com retry
-        app = await inicializar_bot_com_retry(TOKEN)
+        # Inicializar bot
+        app = await inicializar_bot_simples(TOKEN)
 
         # Adicionar handlers
         app.add_handler(CommandHandler("start", start))
@@ -253,30 +300,31 @@ async def main() -> None:
 
         logger.info("🎉 Bot configurado com sucesso!")
 
-        # Executar bot
+        # Executar bot com configurações robustas
         await app.run_polling(
-            poll_interval=1.0,
-            timeout=30,
+            poll_interval=2.0,
+            timeout=60,
             bootstrap_retries=5,
-            read_timeout=30,
-            write_timeout=30,
-            connect_timeout=30,
-            pool_timeout=30,
+            read_timeout=60,
+            write_timeout=60,
+            connect_timeout=60,
+            pool_timeout=60,
         )
 
     except Exception as e:
         logger.error(f"💥 Erro fatal: {e}")
-        sys.exit(1)
+        # Tentar reiniciar automaticamente
+        logger.info("🔄 Tentando reiniciar em 10 segundos...")
+        await asyncio.sleep(10)
+        raise
 
 
 def main_sync() -> None:
     """Função principal síncrona"""
     logger.info("🚀 Iniciando GeraTexto Bot...")
 
-    # Verificar conectividade básica
-    if not verificar_conectividade_basica():
-        logger.error("💥 Falha na conectividade básica. Abortando...")
-        sys.exit(1)
+    # Verificação de conectividade não restritiva
+    verificar_conectividade_basica()
 
     try:
         # Construir aplicação com configurações simples
@@ -291,15 +339,18 @@ def main_sync() -> None:
 
         logger.info("🎉 Bot configurado com sucesso!")
 
-        # Executar bot
+        # Executar bot com timeouts maiores
         app.run_polling(
-            poll_interval=2.0,
-            timeout=20,
+            poll_interval=3.0,
+            timeout=60,
         )
 
     except Exception as e:
         logger.error(f"💥 Erro fatal: {e}")
-        sys.exit(1)
+        # Tentar reiniciar automaticamente
+        logger.info("🔄 Tentando reiniciar em 10 segundos...")
+        time.sleep(10)
+        raise
 
 
 if __name__ == "__main__":

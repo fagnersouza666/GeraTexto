@@ -1,204 +1,203 @@
 # 🤖 GeraTexto Bot
 
-Bot Telegram inteligente para geração automática de conteúdo usando IA. Cria posts personalizados, gera imagens com DALL-E e acompanha tendências atuais.
+**Bot Telegram para geração automatizada de conteúdo com IA**
 
-## ✨ Funcionalidades
+Versão: **2.2.4** | Status: ✅ **Funcional**
 
-- 📝 **Geração de Posts**: Criação de conteúdo personalizado via IA
-- 🎨 **Geração de Imagens**: Criação de imagens com DALL-E
-- 📈 **Tendências**: Acompanhamento de tópicos em alta
-- 🔍 **Status**: Monitoramento do status do bot
-- 🐳 **Dockerizado**: Execução robusta com Docker
+## 📋 Descrição
 
-## 🚀 Instalação
+O GeraTexto Bot é um bot do Telegram que utiliza inteligência artificial para gerar posts criativos sobre qualquer tema. Com integração às principais APIs (OpenAI, Google Trends) e capacidade de gerar imagens com IA, o bot oferece uma solução completa para criação de conteúdo.
+
+### ✨ Principais Recursos
+
+- 🎯 **Geração de Posts**: Crie posts sobre qualquer tema usando IA
+- 📈 **Tendências Interativas**: Clique em tendências para gerar posts automaticamente
+- 🎨 **Imagens com IA**: Adicione imagens geradas por IA aos seus posts
+- 💾 **Salvamento Automático**: Posts salvos automaticamente em arquivos
+- 🔄 **Sistema Robusto**: Reconexão automática e tratamento de erros
+- 🐳 **Containerizado**: Execução simplificada com Docker
+
+## 🚀 Instalação e Configuração
 
 ### Pré-requisitos
 
-- Python 3.10+
 - Docker e Docker Compose
-- Tokens de API do Telegram e OpenAI
+- Chaves de API:
+  - Token do Bot Telegram (via @BotFather)
+  - Chave da API OpenAI
 
-### 1. Clone o Repositório
+### Configuração Rápida
 
+1. **Clone o repositório:**
 ```bash
-git clone <url-do-repositorio>
+git clone <repositorio>
 cd GeraTexto
 ```
 
-### 2. Configure as Variáveis de Ambiente
-
+2. **Configure as variáveis de ambiente:**
 ```bash
 cp .env.example .env
+# Edite o arquivo .env com suas chaves
 ```
 
-Edite o arquivo `.env` com suas credenciais:
+3. **Inicie o bot:**
+```bash
+docker-compose up -d
+```
+
+4. **Verifique os logs:**
+```bash
+docker logs -f geratexto-bot
+```
+
+### Arquivo .env
 
 ```env
-TELEGRAM_TOKEN=seu_token_telegram
-OPENAI_API_KEY=sua_chave_openai
+TELEGRAM_TOKEN=seu_token_aqui
+OPENAI_API_KEY=sua_chave_openai_aqui
 OPENAI_MODEL=gpt-3.5-turbo
+OPENAI_IMAGE_MODEL=dall-e-3
 ```
 
-### 3. Execução Local (Desenvolvimento)
+## 📱 Comandos Disponíveis
 
-```bash
-# Criar ambiente virtual
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Instalar dependências
-pip install -r requirements.txt
-
-# Executar bot
-python bot_telegram.py
-```
-
-### 4. Execução com Docker (Produção)
-
-```bash
-# Construir e executar
-docker build -t geratexto-bot .
-docker run -d --name geratexto-bot \
-  --restart unless-stopped \
-  --network host \
-  --env-file .env \
-  -v $(pwd)/posts:/app/posts \
-  -v $(pwd)/templates:/app/templates \
-  geratexto-bot
-```
-
-## 📋 Comandos do Bot
-
-- `/start` - Inicializar o bot e ver comandos disponíveis
+- `/start` - Inicializar o bot e ver comandos
 - `/gerar <tema>` - Gerar post sobre um tema específico
-- `/tendencias` - Ver tendências atuais do Google Trends
-- `/status` - Verificar status e uptime do bot
+- `/tendencias` - Ver tendências atuais com botões interativos
+- `/status` - Verificar status e conectividade do bot
 
-## 🔧 Arquitetura
+## 🎯 Exemplos de Uso
 
-### Componentes Principais
+### Gerar Post Manualmente
+```
+/gerar Inteligência Artificial no futuro
+```
 
-- **`bot_telegram.py`** - Bot principal com handlers Telegram
-- **`escritor_ia.py`** - Geração de texto com OpenAI
-- **`imagem_ia.py`** - Geração de imagens com DALL-E
-- **`gerador_tendencias.py`** - Busca de tendências Google Trends
-- **`healthcheck.py`** - Verificação de saúde do container
-- **`verificar_conectividade.py`** - Diagnóstico de conectividade
+### Usar Tendências Interativas
+1. Digite `/tendencias`
+2. Clique em qualquer botão de tendência
+3. O bot gerará automaticamente um post sobre o tema
 
-### Melhorias de Conectividade
+### Adicionar Imagem
+Após gerar um post, clique no botão "🎨 Adicionar imagem IA" para criar uma imagem relacionada.
 
-- ✅ **Sistema de Retry**: Tentativas automáticas com backoff exponencial
-- ✅ **Verificação DNS**: Resolução de nomes antes da inicialização
-- ✅ **Healthcheck**: Monitoramento automático da saúde do container
-- ✅ **Network Host**: Uso da rede do host para evitar problemas de DNS
-- ✅ **Configuração Robusta**: Timeouts e configurações otimizadas
+## 🛠️ Arquitetura Técnica
 
-## 🐛 Solução de Problemas
+### Dependências Principais
+- `python-telegram-bot==20.3` - Interface com Telegram
+- `openai==1.3.8` - Geração de conteúdo e imagens
+- `pytrends==4.9.2` - Obtenção de tendências do Google
+- `jinja2==3.1.2` - Templates para posts
+- `httpx==0.24.1` - Requisições HTTP robustas
+
+### Estrutura do Projeto
+```
+GeraTexto/
+├── bot_telegram.py          # Bot principal
+├── escritor_ia.py           # Geração de posts com IA
+├── imagem_ia.py            # Geração de imagens
+├── gerador_tendencias.py   # Obtenção de tendências
+├── utils.py                # Utilitários gerais
+├── templates/              # Templates de posts
+├── posts/                  # Posts gerados
+├── docker-compose.yml      # Configuração Docker
+└── requirements.txt        # Dependências Python
+```
+
+## 🔧 Resolução de Problemas
 
 ### Problemas de Conectividade
+O bot inclui sistema robusto de conectividade com:
+- Verificação DNS automática
+- Retry automático em falhas
+- Logs detalhados de diagnóstico
+- Configuração de rede otimizada para Docker
 
-Se o bot não conseguir conectar:
-
-1. **Verificar conectividade**:
-   ```bash
-   python verificar_conectividade.py
-   ```
-
-2. **Verificar logs do container**:
-   ```bash
-   docker logs geratexto-bot
-   ```
-
-3. **Reiniciar serviços Docker**:
-   ```bash
-   sudo systemctl restart docker
-   ```
-
-### Problemas de DNS
-
-- O bot usa automaticamente `--network host` para evitar problemas de DNS
-- Servidores DNS configurados: 8.8.8.8, 8.8.4.4, 1.1.1.1
-- Hosts mapeados para APIs principais
-
-## 📊 Monitoramento
-
-### Healthcheck
-
-O container inclui healthcheck automático que verifica:
-- Resolução DNS
-- Conectividade HTTP
-- Status do bot Telegram
-
-### Logs
-
+### Logs e Monitoramento
 ```bash
 # Ver logs em tempo real
 docker logs -f geratexto-bot
 
-# Ver últimas 50 linhas
-docker logs geratexto-bot --tail 50
+# Verificar status do container
+docker-compose ps
+
+# Reiniciar se necessário
+docker-compose restart
 ```
 
-## 🔄 Dependências
+### Problemas Comuns
 
-```
-python-telegram-bot==20.3  # API Telegram
-openai==1.3.8             # API OpenAI
-requests==2.31.0          # HTTP requests
-python-dotenv==1.0.0      # Variáveis ambiente
-pytrends==4.9.2           # Google Trends
-jinja2==3.1.2             # Templates
-Pillow==10.1.0            # Processamento imagem
-httpx==0.24.1             # Cliente HTTP async
-```
+**Bot não responde:**
+- Verifique se o token está correto no .env
+- Confirme se o bot não está sendo usado em outro lugar
+- Reinicie o container: `docker-compose restart`
 
-## 📝 Estrutura de Arquivos
+**Erro ao gerar posts:**
+- Verifique a chave da OpenAI no .env
+- Confirme se há créditos na conta OpenAI
+- Verifique logs: `docker logs geratexto-bot`
 
-```
-GeraTexto/
-├── bot_telegram.py         # Bot principal
-├── escritor_ia.py          # Geração de texto
-├── imagem_ia.py           # Geração de imagem
-├── gerador_tendencias.py  # Tendências
-├── healthcheck.py         # Healthcheck
-├── verificar_conectividade.py # Diagnóstico
-├── utils.py               # Utilitários
-├── requirements.txt       # Dependências Python
-├── Dockerfile            # Configuração Docker
-├── start.sh             # Script inicialização
-├── .env.example         # Exemplo variáveis
-├── posts/               # Posts gerados
-├── templates/           # Templates HTML
-└── docker-deps/         # Dependências offline
-```
+**Tendências não carregam:**
+- O bot possui sistema de fallback automático
+- Verifica múltiplas fontes (Google Trends, Reddit, HackerNews)
+- Aguarde alguns segundos e tente novamente
 
-## 🔒 Segurança
+## 📈 Monitoramento
 
-- ✅ Variáveis de ambiente para credenciais
-- ✅ Não exposição de tokens nos logs
-- ✅ Validação de entrada do usuário
-- ✅ Tratamento de erros robusto
+### Healthcheck Automático
+O bot inclui healthcheck que verifica:
+- Conectividade com APIs
+- Status das variáveis de ambiente
+- Funcionamento geral do bot
 
-## 📈 Changelog / Atualizações Recentes
+### Métricas Disponíveis
+- Status em tempo real via comando `/status`
+- Logs estruturados com níveis de severidade
+- Restart automático em caso de falhas
 
-### v2.1.0 (2025-06-05)
-- ✅ **Resolução de conectividade**: Sistema robusto de retry e backoff exponencial
-- ✅ **Healthcheck Docker**: Monitoramento automático da saúde do container
-- ✅ **Network Host**: Uso da rede do host para resolver problemas de DNS
-- ✅ **Verificação DNS**: Teste de conectividade antes da inicialização
-- ✅ **Logs melhorados**: Sistema de logging mais detalhado
-- ✅ **Configuração simplificada**: Remoção de configurações complexas desnecessárias
+## 🔄 Atualizações Recentes
 
-### v2.0.0 (2025-06-05)
-- 🔄 Migração para python-telegram-bot v20.3
-- 🎨 Interface melhorada com emojis e formatação
-- 📊 Sistema de status e monitoramento
+### Versão 2.2.4 (Atual)
+- ✅ **Corrigido**: Problemas de conectividade Docker resolvidos
+- ✅ **Simplificado**: Verificações de rede menos restritivas
+- ✅ **Melhorado**: Sistema de inicialização mais robusto
+- ✅ **Corrigido**: Erro "'Message' object has no attribute 'bot'"
+- ✅ **Otimizado**: Timeouts e configurações de rede
 
-## 🆔 Versão Atual
+### Versão 2.2.3
+- ✅ **Implementado**: Sistema de cache para tendências
+- ✅ **Corrigido**: Erro "Button_data_invalid" 
+- ✅ **Melhorado**: Interface de tendências simplificada
 
-**v2.1.0** - Bot de geração de conteúdo com conectividade robusta
+## 📋 Dependências
+
+### Sistema
+- Docker 20.10+
+- Docker Compose 2.0+
+- Conexão com internet
+
+### APIs Externas
+- Telegram Bot API
+- OpenAI API (GPT + DALL-E)
+- Google Trends (opcional)
+
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Por favor:
+
+1. Faça fork do projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Faça push para a branch
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ---
 
-💡 **Desenvolvido com foco em estabilidade e conectividade confiável**
+**Desenvolvido com ❤️ para automatizar a criação de conteúdo**
+
+Para suporte ou dúvidas, abra uma issue no repositório.
 

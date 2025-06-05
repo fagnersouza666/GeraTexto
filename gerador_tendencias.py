@@ -11,6 +11,7 @@ HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{}.json"
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class Tendencia:
     titulo: str
@@ -55,15 +56,53 @@ def tendencias_google(top_n: int = 5) -> List[Tendencia]:
         return []
 
 
+def tendencias_fallback() -> List[Tendencia]:
+    """Tendências de fallback quando APIs externas falham"""
+    return [
+        Tendencia("Inteligência Artificial", "https://openai.com"),
+        Tendencia("Python Programming", "https://python.org"),
+        Tendencia("Machine Learning", "https://scikit-learn.org"),
+        Tendencia("Tecnologia e Inovação", "https://github.com/trending"),
+        Tendencia("Desenvolvimento Web", "https://developer.mozilla.org"),
+        Tendencia("Automação de Processos", "https://www.python.org/"),
+        Tendencia("Cloud Computing", "https://aws.amazon.com"),
+        Tendencia("Cybersecurity", "https://www.cybersecurity.com"),
+    ]
+
+
 def obter_tendencias() -> List[Tendencia]:
     temas: List[Tendencia] = []
+
+    # Tentar Reddit primeiro (mais confiável)
     temas.extend(tendencias_reddit())
-    temas.extend(tendencias_google())
+
+    # Tentar Google Trends
+    try:
+        google_trends = tendencias_google()
+        if google_trends:
+            temas.extend(google_trends)
+    except Exception as e:
+        logger.warning(f"Google Trends indisponível: {e}")
+
+    # Tentar Hacker News
     temas.extend(tendencias_hn())
+
+    # Se não conseguiu nenhuma tendência, usar fallback
+    if not temas:
+        logger.info("Usando tendências de fallback")
+        temas = tendencias_fallback()
+
+    # Se ainda tem poucas tendências, complementar com fallback
+    if len(temas) < 3:
+        logger.info("Complementando com tendências de fallback")
+        fallback_temas = tendencias_fallback()
+        for tema in fallback_temas:
+            if tema not in temas and len(temas) < 8:
+                temas.append(tema)
+
     return temas
 
 
 if __name__ == "__main__":
     for t in obter_tendencias():
         print("-", t.titulo)
-

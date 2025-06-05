@@ -1,6 +1,100 @@
-# Changelog
+# 📋 Changelog - GeraTexto Bot
 
-Todas as mudanças importantes deste projeto serão documentadas neste arquivo.
+Registro de todas as mudanças e atualizações do projeto.
+
+---
+
+## [2.2.4] - 2025-06-05
+
+### 🔧 Correções Críticas
+- **Resolvido**: Problemas graves de conectividade Docker que impediam inicialização
+- **Corrigido**: Erro "'Message' object has no attribute 'bot'" no comando /tendencias
+- **Simplificado**: Verificações de conectividade excessivamente restritivas
+- **Otimizado**: Configuração de rede Docker para `network_mode: host`
+
+### ⚡ Melhorias de Performance
+- **Reduzido**: Timeouts de verificação mais flexíveis
+- **Melhorado**: Sistema de inicialização mais tolerante a falhas temporárias
+- **Otimizado**: Healthcheck menos restritivo para melhor estabilidade
+- **Aprimorado**: Scripts de start com tratamento de erro robusto
+
+### 🛠️ Mudanças Técnicas
+- Substituído `update.message.bot` por `context.bot` para corrigir erro de atributo
+- Removidas verificações HTTP rigorosas que causavam falhas desnecessárias
+- Simplificado `verificar_conectividade.py` para ser não-restritivo
+- Atualizado `docker-compose.yml` para usar `network_mode: host`
+- Melhorado `healthcheck.py` para não falhar em problemas temporários
+
+### 📝 Logs
+- Adicionado suporte à importação condicional de requests
+- Melhorado feedback visual durante inicialização
+- Logs mais informativos sobre estado de conectividade
+
+---
+
+## [2.2.3] - 2025-06-05
+
+### 🔧 Correções Críticas
+- **Button_data_invalid resolvido**: Uso de índice em vez de texto longo no callback_data
+- **Sistema de cache**: Tendências armazenadas em cache para recuperação segura
+- **Interface ultra-limpa**: Texto ainda mais conciso e direto
+
+### 🛠️ Melhorias Técnicas
+- **Callback_data seguro**: Usando `trend_0`, `trend_1`, etc. em vez de texto completo
+- **Cache de tendências**: Sistema robusto de armazenamento temporário
+- **Error handling**: Melhor tratamento quando tendência não é encontrada
+- **Logs detalhados**: Melhor debugging para problemas de callback
+
+### 🎨 Interface
+- **Texto minimalista**: "👆 Clique para gerar post:" (mais direto)
+- **Botões otimizados**: Títulos limitados a 40 caracteres
+- **Zero duplicação**: Apenas botões, sem listas adicionais
+
+## [2.2.2] - 2025-06-05
+
+### 🎨 Melhoria de Interface
+- **Interface simplificada**: Comando `/tendencias` agora mostra apenas botões, sem duplicar informações
+- **Callback_data otimizado**: Limitação de tamanho para evitar erro "Button_data_invalid"
+- **Experiência mais limpa**: Remoção de listagem dupla das tendências
+
+### 🔧 Correções Técnicas
+- **Limite de caracteres**: callback_data limitado a 64 bytes (limite do Telegram)
+- **Título dos botões**: Limitação de 35 caracteres com "..." quando necessário
+- **Error handling**: Melhoria no tratamento de títulos muito longos
+
+## [2.2.1] - 2025-06-05
+
+### 🔧 Correções de Conectividade Docker
+- **Verificação flexível**: Sistema de conectividade mais flexível para ambientes Docker
+- **Network host**: Documentação atualizada para usar `--network host` no Docker
+- **Timeout ajustado**: Timeouts otimizados para ambientes com latência variável
+- **Fallback robusto**: Sistema de fallback para testes de conectividade básica
+
+### 🐛 Resolução de Problemas
+- **Docker networking**: Resolvido problema de timeout no container Docker
+- **Conectividade APIs**: Melhorado sistema de verificação de conectividade
+- **Execução estável**: Container agora executa de forma estável com network host
+
+## [2.2.0] - 2025-06-05
+
+### ✨ Nova Funcionalidade - Clique em Tendências
+- **Botões interativos**: Comando `/tendencias` agora inclui botões para cada tendência
+- **Geração automática**: Clique em uma tendência gera automaticamente um post sobre ela
+- **Interface melhorada**: UX mais intuitiva com feedback visual
+- **Callbacks avançados**: Sistema de callback expandido para processar tendências
+- **Mensagens de confirmação**: Feedback visual quando posts são gerados com sucesso
+
+### 🎨 Melhorias de Interface
+- **Texto explicativo**: Instruções claras sobre como usar os botões
+- **Limitação de tamanho**: Títulos de botões limitados para melhor visualização
+- **Error handling**: Tratamento melhorado de erros em callbacks
+- **Feedback do usuário**: Mensagens de sucesso e erro mais informativas
+
+### 🔧 Melhorias Técnicas
+- **Sistema de callback expandido**: Handler de callbacks mais robusto
+- **Validação de dados**: Verificação de callback_data para diferentes tipos
+- **Limitação de caracteres**: Prevenção de overflow em callback_data
+- **Logging melhorado**: Logs mais detalhados para callbacks
 
 ## [2.1.0] - 2025-06-05
 
