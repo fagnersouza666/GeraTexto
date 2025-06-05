@@ -13,6 +13,7 @@ HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{}.json"
 TECHCRUNCH_RSS = "https://techcrunch.com/feed/"
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -243,9 +244,6 @@ def tendencias_fallback() -> List[Tendencia]:
 def obter_tendencias() -> List[Tendencia]:
     temas: List[Tendencia] = []
 
-    # Tentar Reddit primeiro (mais confiável)
-    temas.extend(tendencias_reddit())
-
     # Tentar TechCrunch
     try:
         techcrunch_trends = tendencias_techcrunch()
@@ -253,6 +251,9 @@ def obter_tendencias() -> List[Tendencia]:
             temas.extend(techcrunch_trends)
     except Exception as e:
         logger.warning(f"TechCrunch indisponível: {e}")
+
+    # Tentar Reddit
+    temas.extend(tendencias_reddit())
 
     # Tentar Hacker News
     temas.extend(tendencias_hn())

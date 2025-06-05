@@ -18,7 +18,7 @@ from telegram.request import HTTPXRequest
 import httpx
 
 from utils import verificar_env
-from escritor_ia import gerar_post, salvar_post
+from escritor_ia import gerar_post, salvar_post, salvar_texto_puro
 from imagem_ia import gerar_imagem
 from gerador_tendencias import obter_tendencias
 
@@ -117,6 +117,9 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             post = gerar_post(tema)
             arquivo = salvar_post(tema, post)
 
+            # Salvar também arquivo .txt para anexar
+            arquivo_txt = salvar_texto_puro(tema, post)
+
             # Criar botão para adicionar imagem com callback_data seguro
             callback_img = f"img|{arquivo}"
 
@@ -144,6 +147,14 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )
+
+            # Enviar arquivo .txt como anexo/documento
+            with open(arquivo_txt, "rb") as document:
+                await processing_msg.reply_document(
+                    document,
+                    caption=f"📝 **Texto limpo para cópia**\n\n🔗 Arquivo: `{arquivo_txt.name}`\n💡 *Clique para baixar ou visualizar*",
+                    parse_mode="Markdown",
+                )
         except Exception as e:
             await processing_msg.edit_text(f"❌ Erro ao gerar post: {str(e)}")
 
@@ -233,7 +244,11 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         data = query.data
 
         if data.startswith("img|"):
-            await query.message.edit_text("🎨 Gerando imagem...")
+            # Editar apenas para mostrar que está gerando
+            await query.message.edit_reply_markup(reply_markup=None)
+
+            # Enviar mensagem temporária de processamento
+            processing_msg = await query.message.reply_text("🎨 Gerando imagem...")
 
             try:
                 arquivo_info = data.split("|", 1)[1]
@@ -267,15 +282,42 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 )
                 img_path = caminho.with_suffix(".png")
 
+                # Gerar imagem
                 gerar_imagem(tema, img_path)
 
+                # Salvar texto puro em arquivo .txt para fácil cópia
+                conteudo_post = caminho.read_text(encoding="utf-8")
+                arquivo_txt = salvar_texto_puro(tema, conteudo_post)
+
+                # Deletar mensagem de processamento
+                await processing_msg.delete()
+
+                # Enviar imagem com caption informativo (sem substituir o texto original)
                 with open(img_path, "rb") as photo:
                     await query.message.reply_photo(
-                        photo, caption=f"🎨 Imagem para: {tema}"
+                        photo,
+                        caption=f"🎨 **Imagem para:** {tema}\n\n📄 *Arquivo de texto enviado em anexo abaixo*",
+                        parse_mode="Markdown",
+                    )
+
+                # Enviar arquivo .txt como anexo/documento
+                with open(arquivo_txt, "rb") as document:
+                    await query.message.reply_document(
+                        document,
+                        caption=f"📝 **Texto limpo para cópia**\n\n🔗 Arquivo: `{arquivo_txt.name}`\n💡 *Clique para baixar ou visualizar*",
+                        parse_mode="Markdown",
                     )
 
             except Exception as e:
-                await query.message.edit_text(f"❌ Erro ao gerar imagem: {str(e)}")
+                await processing_msg.edit_text(f"❌ Erro ao gerar imagem: {str(e)}")
+
+                # Restaurar botão se houve erro
+                keyboard = [
+                    [InlineKeyboardButton("🎨 Adicionar imagem IA", callback_data=data)]
+                ]
+                await query.message.edit_reply_markup(
+                    reply_markup=InlineKeyboardMarkup(keyboard)
+                )
 
         elif data.startswith("trend_"):
             # Processar clique em tendência usando índice
@@ -304,6 +346,9 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 post = gerar_post(tendencia_data["tema_post"])
                 arquivo = salvar_post(tendencia_data["titulo"], post)
 
+                # Salvar também arquivo .txt para anexar
+                arquivo_txt = salvar_texto_puro(tendencia_data["titulo"], post)
+
                 # Criar botão para adicionar imagem com callback_data seguro
                 callback_img = f"img|{arquivo}"
 
@@ -331,6 +376,14 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     reply_markup=InlineKeyboardMarkup(keyboard),
                     parse_mode="Markdown",
                 )
+
+                # Enviar arquivo .txt como anexo/documento
+                with open(arquivo_txt, "rb") as document:
+                    await query.message.reply_document(
+                        document,
+                        caption=f"📝 **Texto limpo para cópia**\n\n🔗 Arquivo: `{arquivo_txt.name}`\n💡 *Clique para baixar ou visualizar*",
+                        parse_mode="Markdown",
+                    )
 
                 # Mostrar mensagem de sucesso
                 await query.answer("✅ Post gerado!", show_alert=False)

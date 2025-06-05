@@ -4,6 +4,74 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.2.9] - 2025-06-05
+
+### 📎 Nova Funcionalidade: Anexos Automáticos no Telegram
+- **Implementado**: Arquivos .txt enviados automaticamente como anexo no Telegram
+- **Adicionado**: Função `reply_document()` para envio de documentos
+- **Melhorado**: Acesso ainda mais fácil ao texto limpo dos posts
+- **Otimizado**: Dupla funcionalidade - visualização no chat + arquivo para download
+
+### ✨ Melhorias de Usabilidade
+- **Comando `/gerar`**: Agora sempre envia arquivo .txt como anexo
+- **Comando `/tendencias`**: Também envia arquivo .txt ao gerar post de tendência  
+- **Geração de imagem**: Arquivo .txt reenviado como anexo junto com a imagem
+- **Caption informativo**: Instruções claras sobre o anexo enviado
+
+### 🛠️ Melhorias Técnicas
+- **Integração `reply_document()`**: Envio nativo de documentos pelo Telegram
+- **Caption personalizado**: Informações úteis sobre cada arquivo anexo
+- **Workflow otimizado**: Arquivos criados e enviados automaticamente
+- **Compatibilidade total**: Funciona em todos os comandos e callbacks
+
+### 📁 Sistema de Arquivos Aprimorado
+- **Tripla funcionalidade**: .md (sistema), .txt (anexo), .png (imagens)
+- **Download direto**: Usuário pode baixar .txt diretamente do Telegram
+- **Visualização inline**: Telegram exibe preview do conteúdo
+- **Organização local**: Arquivos salvos localmente também para backup
+
+### ✅ Resultado
+- **Acesso imediato**: Arquivo .txt disponível instantaneamente no chat
+- **Zero fricção**: Não precisa acessar pasta ou servidor
+- **Download opcional**: Usuário pode baixar se quiser
+- **Backup duplo**: Local (pasta) + Telegram (anexo)
+
+---
+
+## [2.2.8] - 2025-06-05
+
+### 🔧 Correção Crítica: Texto Preservado ao Gerar Imagem
+- **Problema resolvido**: Texto do post não desaparece mais ao clicar em "Gerar imagem"
+- **Implementado**: Mensagem original preservada, imagem enviada em nova mensagem
+- **Adicionado**: Criação automática de arquivo .txt com texto limpo para cópia fácil
+- **Melhorado**: Interface mais intuitiva com feedback visual durante processo
+
+### ✨ Novas Funcionalidades
+- **Arquivo .txt automático**: Texto limpo salvo automaticamente ao gerar imagem
+- **Preservação de contexto**: Mensagem original permanece disponível
+- **Feedback melhorado**: Mensagens informativas durante processamento
+- **Parser YAML**: Remoção inteligente de metadados para texto limpo
+
+### 🛠️ Melhorias Técnicas
+- **Callback otimizado**: Usa `reply_photo()` em vez de `edit_text()`
+- **Processamento assíncrono**: Melhor experiência do usuário
+- **Error handling**: Restauração de botões em caso de erro
+- **Sistema de fallback**: Múltiplos níveis de recuperação
+
+### 📁 Gestão de Arquivos
+- **Função `salvar_texto_puro()`**: Extrai apenas conteúdo essencial
+- **YAML parser**: Remove automaticamente metadados do frontmatter
+- **Nomes inteligentes**: Arquivos .txt com nomes descritivos
+- **Encoding UTF-8**: Suporte completo a caracteres especiais
+
+### ✅ Resultado
+- **100% funcional**: Texto sempre preservado
+- **Experiência melhorada**: Interface mais intuitiva
+- **Arquivos úteis**: .txt prontos para copiar/colar
+- **Zero perda de dados**: Contexto completo mantido
+
+---
+
 ## [2.2.7] - 2025-06-05
 
 ### 🔄 Substituição de Fonte: Google Trends → TechCrunch

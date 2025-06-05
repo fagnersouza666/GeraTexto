@@ -1,0 +1,10 @@
+# Título do Post
+
+Este é o conteúdo principal do post.
+
+**Pontos importantes:**
+- Item 1
+- Item 2
+- Item 3
+
+Conclusão do post.
