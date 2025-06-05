@@ -5,11 +5,13 @@ import requests
 from pytrends.request import TrendReq
 import re
 from urllib.parse import urlparse
+import xml.etree.ElementTree as ET
 
 USER_AGENT = "GeraTextoBot/0.1"
 REDDIT_URL = "https://www.reddit.com/r/artificial/hot.json?limit=10"
 HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{}.json"
+TECHCRUNCH_RSS = "https://techcrunch.com/feed/"
 
 logger = logging.getLogger(__name__)
 
@@ -178,13 +180,43 @@ def tendencias_hn(top_n: int = 5) -> List[Tendencia]:
         return []
 
 
-def tendencias_google(top_n: int = 5) -> List[Tendencia]:
+def tendencias_techcrunch(top_n: int = 5) -> List[Tendencia]:
+    """Obtém tendências do TechCrunch via RSS feed"""
     try:
-        pt = TrendReq(hl="pt-BR", tz=360)
-        trending = pt.trending_searches(pn="brazil")[0].tolist()
-        return [Tendencia(t) for t in trending[:top_n]]
-    except Exception:
-        logger.exception("Erro ao obter tendências do Google")
+        headers = {"User-Agent": USER_AGENT}
+        response = requests.get(TECHCRUNCH_RSS, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        # Parse do XML RSS
+        root = ET.fromstring(response.content)
+
+        tendencias = []
+        items = root.findall(".//item")[: top_n * 2]  # Pegar mais itens para filtrar
+
+        for item in items:
+            titulo_elem = item.find("title")
+            link_elem = item.find("link")
+
+            if titulo_elem is not None and link_elem is not None:
+                titulo = titulo_elem.text.strip()
+                link = link_elem.text.strip()
+
+                # Filtrar títulos muito curtos ou genéricos
+                if len(titulo) > 10 and not titulo.lower().startswith("techcrunch"):
+                    # Limpar título se necessário
+                    if titulo.endswith(" | TechCrunch"):
+                        titulo = titulo[:-13]
+
+                    tendencias.append(Tendencia(titulo, link))
+
+                    if len(tendencias) >= top_n:
+                        break
+
+        logger.info(f"✅ TechCrunch: {len(tendencias)} tendências obtidas")
+        return tendencias
+
+    except Exception as e:
+        logger.exception(f"Erro ao obter tendências do TechCrunch: {e}")
         return []
 
 
@@ -199,6 +231,12 @@ def tendencias_fallback() -> List[Tendencia]:
         Tendencia("Automação de Processos", "https://www.python.org/"),
         Tendencia("Cloud Computing", "https://aws.amazon.com"),
         Tendencia("Cybersecurity", "https://www.cybersecurity.com"),
+        Tendencia("ChatGPT e IA Generativa", "https://openai.com/chatgpt"),
+        Tendencia("Blockchain e Criptomoedas", "https://bitcoin.org"),
+        Tendencia("Realidade Virtual e Metaverso", "https://www.meta.com"),
+        Tendencia("5G e Internet das Coisas", "https://www.ericsson.com"),
+        Tendencia("Robótica e Drones", "https://robotics.org"),
+        Tendencia("Startups e Empreendedorismo", "https://techcrunch.com"),
     ]
 
 
@@ -208,13 +246,13 @@ def obter_tendencias() -> List[Tendencia]:
     # Tentar Reddit primeiro (mais confiável)
     temas.extend(tendencias_reddit())
 
-    # Tentar Google Trends
+    # Tentar TechCrunch
     try:
-        google_trends = tendencias_google()
-        if google_trends:
-            temas.extend(google_trends)
+        techcrunch_trends = tendencias_techcrunch()
+        if techcrunch_trends:
+            temas.extend(techcrunch_trends)
     except Exception as e:
-        logger.warning(f"Google Trends indisponível: {e}")
+        logger.warning(f"TechCrunch indisponível: {e}")
 
     # Tentar Hacker News
     temas.extend(tendencias_hn())

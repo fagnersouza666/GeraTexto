@@ -2,7 +2,7 @@
 
 **Bot Telegram para geração automatizada de conteúdo com IA**
 
-Versão: **2.2.6** | Status: ✅ **Funcional** | Button_data_invalid: ✅ **Resolvido Definitivamente**
+Versão: **2.2.7** | Status: ✅ **Funcional** | Fontes: Reddit + TechCrunch + HackerNews
 
 ## 📋 Descrição
 
@@ -11,7 +11,7 @@ O GeraTexto Bot é um bot do Telegram que utiliza inteligência artificial para 
 ### ✨ Principais Recursos
 
 - 🎯 **Geração de Posts**: Crie posts sobre qualquer tema usando IA
-- 📈 **Tendências Inteligentes**: Clique em tendências com resumos otimizados para gerar posts
+- 📈 **Tendências Inteligentes**: Clique em tendências do Reddit, TechCrunch e HackerNews
 - 🧠 **Processamento Inteligente**: Sistema que extrai assuntos principais de tendências longas
 - 🎨 **Imagens com IA**: Adicione imagens geradas por IA aos seus posts
 - 💾 **Salvamento Automático**: Posts salvos automaticamente em arquivos
@@ -174,17 +174,12 @@ O bot inclui healthcheck que verifica:
 
 ## 🔄 Atualizações Recentes
 
-### Versão 2.2.5 (Atual)
-- ✅ **Corrigido**: Problemas de conectividade Docker resolvidos
-- ✅ **Simplificado**: Verificações de rede menos restritivas
-- ✅ **Melhorado**: Sistema de inicialização mais robusto
-- ✅ **Corrigido**: Erro "'Message' object has no attribute 'bot'"
-- ✅ **Otimizado**: Timeouts e configurações de rede
-
-### Versão 2.2.3
-- ✅ **Implementado**: Sistema de cache para tendências
-- ✅ **Corrigido**: Erro "Button_data_invalid" 
-- ✅ **Melhorado**: Interface de tendências simplificada
+### Versão 2.2.7 (Atual)
+- ✅ **Substituído**: Google Trends por TechCrunch RSS (mais confiável)
+- ✅ **Adicionado**: Feed RSS do TechCrunch para tendências de tecnologia
+- ✅ **Melhorado**: Mix de fontes: Reddit, TechCrunch e HackerNews
+- ✅ **Corrigido**: Eliminados erros 404 do Google Trends
+- ✅ **Expandido**: Mais temas de fallback relacionados à tecnologia
 
 ## 📋 Dependências
 
