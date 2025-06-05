@@ -67,6 +67,7 @@ docker logs -f geratexto-bot
 
 - **`./start-bot.sh`** - Script simplificado que sempre funciona ✅
 - **`./run-docker.sh`** - Script completo com validações
+- **`./fix-docker.sh`** - Correção automática do erro ContainerConfig ⚡
 - **`docker-compose up -d`** - Comando direto do Docker Compose
 
 ### Arquivo .env
@@ -120,3 +121,35 @@ O arquivo .txt também será reenviado como anexo junto com a imagem.
 - `pytrends==4.9.2` - Obtenção de tendências do Google
 - `jinja2==3.1.2` - Templates para posts
 - `httpx==0.24.1`
+
+## 🔧 Resolução de Problemas
+
+### Erro "ContainerConfig" no Docker
+Se encontrar o erro `KeyError: 'ContainerConfig'`, use o script de correção automática:
+
+```bash
+./fix-docker.sh
+```
+
+Este script irá:
+1. Parar todos os containers
+2. Limpar completamente o sistema Docker
+3. Reconstruir a imagem sem cache
+4. Iniciar o bot automaticamente
+
+### Outros Problemas Comuns
+
+**Bot não responde:**
+- Verifique se o token está correto no .env
+- Confirme se o bot não está sendo usado em outro lugar
+- Reinicie: `docker-compose restart`
+
+**Erro ao gerar posts:**
+- Verifique a chave da OpenAI no .env
+- Confirme se há créditos na conta OpenAI
+- Verifique logs: `docker logs geratexto-bot`
+
+**URLs não processam:**
+- Verifique se a URL é acessível publicamente
+- Alguns sites podem bloquear bots
+- Tente com URLs de sites conhecidos (ex: TechCrunch, Medium)
