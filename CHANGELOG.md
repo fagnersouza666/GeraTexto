@@ -4,6 +4,239 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.3.1] - 2025-06-05 - **Correção DNS e Estabilidade**
+
+### 🔧 Correções Críticas
+- **DNS Container**: Resolvido problema de conectividade DNS dentro do Docker
+- **Timeout Dependências**: Corrigido travamento na instalação de dependências
+- **Execução Local**: Implementado método preferencial para execução robusta
+
+### ✨ Melhorias
+- **Script run-bot.sh**: Novo script para execução local simplificada
+- **Configuração Docker**: DNS explícito (8.8.8.8, 1.1.1.1) e IPs de fallback para Telegram
+- **Logs Aprimorados**: Melhor debugging e tratamento de erros
+- **Inicialização Robusta**: Retry automático com backoff exponencial
+
+### 🏗️ Mudanças Técnicas
+- Removida verificação de conectividade desnecessária do start.sh
+- Simplificado Dockerfile para maior compatibilidade
+- Adicionado suporte para IPv6 disabled no Docker
+- Melhorada configuração de timeouts HTTP
+
+### 📋 Execução
+```bash
+# Método Preferencial (Local)
+./run-bot.sh
+
+# Método Alternativo (Docker)
+./fix-docker.sh  # Se houver problemas
+docker-compose up -d
+```
+
+### 🐛 Problemas Corrigidos
+- ❌ `[Errno -3] Temporary failure in name resolution`
+- ❌ Timeout na instalação de dependências via pip
+- ❌ Container travando na inicialização
+- ❌ Problemas de rede intermitentes
+
+---
+
+## [2.3.0] - 2025-06-05 - **Processamento Automático de URLs**
+
+### 🌐 Nova Funcionalidade: URLs
+- **Extração Automática**: `/gerar <URL>` detecta e processa URLs automaticamente
+- **Resumo Inteligente**: IA dupla para extrair + resumir + gerar título
+- **Suporte Universal**: Funciona com qualquer página web acessível
+- **Interface Intuitiva**: Feedback visual durante extração
+
+### 🔧 Implementações Técnicas
+- `eh_url_valida()` - Detecção de URLs por regex
+- `processar_url_para_post()` - Pipeline de extração + resumo + geração
+- `gerar_post_de_url()` - Função principal para URLs
+- Modificação do comando `/gerar` para detectar automaticamente URLs vs temas
+
+### 📱 Exemplos de Uso
+```
+/gerar https://techcrunch.com/artigo
+/gerar https://medium.com/@autor/post  
+/gerar https://github.com/projeto/readme
+```
+
+### ✨ Funcionalidades Preservadas
+- ✅ Anexos automáticos .txt mantidos
+- ✅ Geração de imagem IA mantida  
+- ✅ Preservação do texto original mantida
+- ✅ Compatibilidade total com comandos existentes
+
+---
+
+## [2.2.9] - 2025-06-05 - **Anexos Automáticos no Telegram**
+
+### 📎 Nova Funcionalidade: Anexos .txt
+- **Envio Automático**: Arquivos .txt enviados como documento em todos os comandos
+- **Texto Limpo**: Conteúdo sem metadados YAML para cópia fácil
+- **Captions Informativos**: Descrição clara de cada anexo
+- **Backup Duplo**: Salvamento local + envio Telegram
+
+### 🔧 Implementações
+- Modificação de todos os comandos: `/gerar`, `/tendencias`, geração de imagem
+- `reply_document()` para envio nativo de documentos no Telegram
+- Captions informativos em cada anexo enviado
+- Sistema de backup local e remoto simultâneo
+
+### 📱 Workflow Melhorado
+1. Usuário executa comando (`/gerar tema` ou clica em tendência)
+2. Bot gera post e salva arquivo .md localmente
+3. Bot salva versão .txt limpa automaticamente  
+4. Bot exibe post no chat com botão de imagem
+5. **NOVO**: Bot envia arquivo .txt como anexo automaticamente
+6. Usuário pode baixar, visualizar ou copiar texto facilmente
+
+### ✨ Benefícios
+- 📱 **Mobile-Friendly**: Fácil download e compartilhamento no celular
+- 📋 **Cópia Rápida**: Texto limpo sem formatação YAML
+- 💾 **Backup Automático**: Arquivo sempre disponível no chat
+- 🔄 **Sem Passos Extras**: Tudo automático, sem necessidade de cliques
+
+---
+
+## [2.2.8] - 2025-06-05 - **Preservação de Texto Original**
+
+### 🐛 Problema Resolvido
+- **Texto Desaparecendo**: Ao clicar em "gerar imagem", o texto original sumia
+- **Perda de Conteúdo**: Usuários perdiam acesso ao post gerado
+
+### ✅ Solução Implementada
+- **Preservação Garantida**: Texto original sempre mantido visível
+- **Reply vs Edit**: Usamos `reply_photo()` em vez de `edit_text()`
+- **Arquivo .txt Automático**: Criação de versão limpa para cópia
+
+### 🔧 Mudanças Técnicas
+- Função `salvar_texto_puro()` que extrai conteúdo sem metadados YAML
+- Modificação do callback de imagem para usar `reply_photo()`
+- Parser inteligente que remove frontmatter automaticamente
+- Manutenção da mensagem original intacta
+
+### 📱 Workflow Atual
+1. Usuário gera post (texto fica visível)
+2. Clica em "🎨 Adicionar imagem IA"
+3. ✅ **NOVO**: Texto original permanece visível
+4. ✅ **NOVO**: Imagem é enviada como resposta separada
+5. ✅ **NOVO**: Arquivo .txt limpo é enviado junto
+
+### ✨ Benefícios
+- 💾 **Sem Perda**: Texto sempre acessível
+- 📱 **UX Melhorada**: Interface mais clara e funcional
+- 📋 **Cópia Fácil**: Arquivo .txt para usar em outros locais
+- 🎨 **Imagem + Texto**: Ambos disponíveis simultaneamente
+
+---
+
+## [2.2.7] - 2025-06-04
+
+### 🔧 Melhorias de Estabilidade
+- Sistema de reconexão automática melhorado
+- Timeouts otimizados para Docker
+- Configurações de rede mais robustas
+
+### 🐛 Correções
+- Problemas de conectividade intermitente
+- Erros de timeout em requests HTTP
+- Questões de encoding em alguns posts
+
+---
+
+## [2.2.6] - 2025-06-04
+
+### ✨ Novas Funcionalidades
+- Sistema de cache para tendências
+- Melhoria na interface de botões interativos
+- Comando `/status` para verificar saúde do bot
+
+### 🔧 Melhorias Técnicas
+- Otimização do uso de memória
+- Redução de chamadas desnecessárias à API
+- Melhoria no tratamento de exceções
+
+---
+
+## [2.2.0] - 2025-06-03
+
+### 🌟 Recurso Principal: Tendências Inteligentes
+- **Fontes Múltiplas**: Reddit + TechCrunch + HackerNews
+- **Processamento IA**: Resumo automático de tendências longas  
+- **Interface Interativa**: Botões clicáveis para cada tendência
+- **Geração Instantânea**: Um clique para criar post completo
+
+### 🧠 Sistema de Processamento Inteligente
+- **Análise de Tamanho**: Detecta tendências muito longas automaticamente
+- **Resumo por IA**: Extrai pontos principais de temas complexos
+- **Preservação de Contexto**: Mantém essência do tópico original
+- **Fallback Seguro**: Usa título original se resumo falhar
+
+### 📱 Interface Aprimorada
+- **Botões Dinâmicos**: Cada tendência vira um botão clicável
+- **Preview Inteligente**: Títulos resumidos para melhor visualização
+- **Feedback Visual**: Indicações claras de progresso
+- **Cache Inteligente**: Armazena dados para resposta rápida
+
+### 🔧 Melhorias Técnicas
+- **Callback Seguro**: Sistema robusto para botões do Telegram
+- **Gestão de Memória**: Cache otimizado por chat
+- **Error Handling**: Tratamento completo de exceções
+- **Logs Detalhados**: Debugging aprimorado
+
+---
+
+## [2.1.0] - 2025-06-02
+
+### 🎨 Funcionalidade: Geração de Imagens IA
+- **DALL-E Integrado**: Criação de imagens automática via OpenAI
+- **Botão Interativo**: "🎨 Adicionar imagem IA" em cada post
+- **Salvamento Local**: Imagens salvas como PNG na pasta do projeto
+- **Nomeação Inteligente**: Baseada no tema do post
+
+### ✨ Melhorias de Interface
+- **Botões Telegram**: Interface mais intuitiva e profissional
+- **Feedback Visual**: Indicadores de progresso durante geração
+- **Tratamento de Erros**: Mensagens claras em caso de falha
+
+---
+
+## [2.0.0] - 2025-06-01
+
+### 🚀 Migração Completa para Telegram
+- **Abandono WhatsApp**: Foco total na plataforma Telegram
+- **Bot Nativo**: Aproveitamento completo dos recursos do Telegram
+- **Interface Rica**: Botões, formatação Markdown, e comandos nativos
+
+### 📝 Sistema de Posts Melhorado
+- **Templates Jinja2**: Sistema flexível de templates
+- **Metadados YAML**: Organização estruturada dos posts
+- **Salvamento Automático**: Posts salvos em arquivos .md
+
+### 🔧 Arquitetura Robusta
+- **Modularização**: Código organizado em módulos especializados
+- **Error Handling**: Tratamento robusto de erros e reconexão
+- **Logging Detalhado**: Sistema completo de logs
+
+### 🐳 Containerização
+- **Docker Compose**: Implantação simplificada
+- **Healthcheck**: Monitoramento automático de saúde
+- **Volumes Persistentes**: Preservação de dados entre restarts
+
+---
+
+## [1.0.0] - 2025-05-30
+
+### 🎉 Versão Inicial
+- **Geração de Posts**: IA para criação de conteúdo
+- **Google Trends**: Integração para captura de tendências
+- **WhatsApp Web**: Interface via automação web (descontinuada)
+- **OpenAI GPT**: Processamento de linguagem natural
+
+---
+
 ## [2.2.9] - 2025-06-05
 
 ### 📎 Nova Funcionalidade: Anexos Automáticos no Telegram

@@ -41,54 +41,100 @@ MAX_TENDENCIAS = 5
 
 
 def verificar_conectividade_basica():
-    """Verifica conectividade básica - versão simplificada"""
+    """Verifica conectividade básica - versão melhorada"""
     import socket
+    import subprocess
 
     logger.info("🔍 Verificando conectividade...")
 
-    # Verificação mínima - apenas tentar resolver DNS básico
-    try:
-        socket.gethostbyname("api.telegram.org")
-        logger.info("✅ DNS básico funcionando")
-        return True
-    except socket.gaierror as e:
-        logger.warning(f"⚠️ DNS com problema: {e}")
-        # Mesmo com problema de DNS, vamos tentar continuar
-        return True
+    # Tentar resolver múltiplos serviços DNS
+    hosts_teste = ["8.8.8.8", "api.telegram.org", "api.openai.com", "google.com"]
+
+    conexoes_ok = 0
+    for host in hosts_teste:
+        try:
+            if host in ["8.8.8.8"]:
+                # Teste direto de conectividade
+                sock = socket.create_connection((host, 53), timeout=5)
+                sock.close()
+            else:
+                # Teste de resolução DNS
+                socket.gethostbyname(host)
+
+            logger.info(f"✅ {host} - OK")
+            conexoes_ok += 1
+        except Exception as e:
+            logger.warning(f"⚠️ {host} - Falha: {e}")
+
+    if conexoes_ok > 0:
+        logger.info("✅ Conectividade básica funcionando")
+    else:
+        logger.warning("⚠️ Problemas de conectividade detectados")
+        # Tentar limpar cache DNS
+        try:
+            subprocess.run(
+                ["systemctl", "restart", "systemd-resolved"],
+                capture_output=True,
+                timeout=10,
+            )
+        except:
+            pass
+
+    return True  # Sempre retorna True para tentar continuar
 
 
-def criar_cliente_http_simples():
-    """Cria cliente HTTP com configurações simples"""
+def criar_cliente_http_robusta():
+    """Cria cliente HTTP com configurações robustas para Docker"""
     return HTTPXRequest(
-        connection_pool_size=4,
-        connect_timeout=60.0,
+        connection_pool_size=8,
+        connect_timeout=30.0,
         read_timeout=60.0,
         write_timeout=60.0,
-        pool_timeout=60.0,
+        pool_timeout=30.0,
     )
 
 
-async def inicializar_bot_simples(token: str):
-    """Inicializa bot de forma simples e robusta"""
-    try:
-        logger.info("🔄 Inicializando bot...")
-
-        # Criar aplicação com configurações básicas
-        app = ApplicationBuilder().token(token).build()
-
-        # Testar conexão básica
+async def inicializar_bot_robusta(token: str, max_tentativas=5):
+    """Inicializa bot de forma robusta com retry automático"""
+    for tentativa in range(1, max_tentativas + 1):
         try:
-            bot_info = await app.bot.get_me()
-            logger.info(f"✅ Bot conectado: @{bot_info.username}")
-            return app
-        except Exception as e:
-            logger.warning(f"⚠️ Erro na verificação inicial: {e}")
-            # Retornar mesmo assim - o bot pode funcionar
-            return app
+            logger.info(
+                f"🔄 Tentativa {tentativa}/{max_tentativas} - Inicializando bot..."
+            )
 
-    except Exception as e:
-        logger.error(f"❌ Erro na inicialização: {e}")
-        raise
+            # Criar aplicação com configurações robustas
+            request = criar_cliente_http_robusta()
+            app = ApplicationBuilder().token(token).request(request).build()
+
+            # Testar conexão com retry
+            try:
+                bot_info = await app.bot.get_me()
+                logger.info(f"✅ Bot conectado: @{bot_info.username}")
+                return app
+            except Exception as e:
+                logger.warning(f"⚠️ Erro na verificação (tentativa {tentativa}): {e}")
+
+                if tentativa < max_tentativas:
+                    wait_time = min(tentativa * 5, 30)  # Backoff exponencial limitado
+                    logger.info(
+                        f"⏳ Aguardando {wait_time}s antes da próxima tentativa..."
+                    )
+                    await asyncio.sleep(wait_time)
+                    continue
+                else:
+                    logger.warning("⚠️ Máximo de tentativas atingido, prosseguindo...")
+                    return app
+
+        except Exception as e:
+            logger.error(f"❌ Erro na inicialização (tentativa {tentativa}): {e}")
+
+            if tentativa < max_tentativas:
+                wait_time = min(tentativa * 10, 60)
+                logger.info(f"⏳ Aguardando {wait_time}s antes da próxima tentativa...")
+                await asyncio.sleep(wait_time)
+            else:
+                logger.error("❌ Falha na inicialização após todas as tentativas")
+                raise
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -445,7 +491,7 @@ async def main() -> None:
 
     try:
         # Inicializar bot
-        app = await inicializar_bot_simples(TOKEN)
+        app = await inicializar_bot_robusta(TOKEN)
 
         # Adicionar handlers
         app.add_handler(CommandHandler("start", start))
@@ -476,37 +522,55 @@ async def main() -> None:
 
 
 def main_sync() -> None:
-    """Função principal síncrona"""
-    logger.info("🚀 Iniciando GeraTexto Bot...")
+    """Função principal síncrona com configurações robustas"""
+    max_tentativas = 3
 
-    # Verificação de conectividade não restritiva
-    verificar_conectividade_basica()
+    for tentativa in range(1, max_tentativas + 1):
+        try:
+            logger.info(
+                f"🚀 Iniciando GeraTexto Bot (tentativa {tentativa}/{max_tentativas})..."
+            )
 
-    try:
-        # Construir aplicação com configurações simples
-        app = ApplicationBuilder().token(TOKEN).build()
+            # Verificação de conectividade
+            verificar_conectividade_basica()
 
-        # Adicionar handlers
-        app.add_handler(CommandHandler("start", start))
-        app.add_handler(CommandHandler("gerar", gerar))
-        app.add_handler(CommandHandler("tendencias", tendencias))
-        app.add_handler(CommandHandler("status", status))
-        app.add_handler(CallbackQueryHandler(callbacks))
+            # Construir aplicação com configurações robustas
+            request = criar_cliente_http_robusta()
+            app = ApplicationBuilder().token(TOKEN).request(request).build()
 
-        logger.info("🎉 Bot configurado com sucesso!")
+            # Adicionar handlers
+            app.add_handler(CommandHandler("start", start))
+            app.add_handler(CommandHandler("gerar", gerar))
+            app.add_handler(CommandHandler("tendencias", tendencias))
+            app.add_handler(CommandHandler("status", status))
+            app.add_handler(CallbackQueryHandler(callbacks))
 
-        # Executar bot com timeouts maiores
-        app.run_polling(
-            poll_interval=3.0,
-            timeout=60,
-        )
+            logger.info("🎉 Bot configurado com sucesso!")
 
-    except Exception as e:
-        logger.error(f"💥 Erro fatal: {e}")
-        # Tentar reiniciar automaticamente
-        logger.info("🔄 Tentando reiniciar em 10 segundos...")
-        time.sleep(10)
-        raise
+            # Executar bot com timeouts maiores e configurações robustas
+            app.run_polling(
+                poll_interval=3.0,
+                timeout=30,
+                bootstrap_retries=5,
+                read_timeout=60,
+                write_timeout=60,
+                connect_timeout=30,
+                pool_timeout=30,
+            )
+
+            # Se chegou aqui, foi interrompido normalmente
+            break
+
+        except Exception as e:
+            logger.error(f"💥 Erro fatal na tentativa {tentativa}: {e}")
+
+            if tentativa < max_tentativas:
+                wait_time = tentativa * 15  # 15s, 30s para próximas tentativas
+                logger.info(f"🔄 Tentando reiniciar em {wait_time} segundos...")
+                time.sleep(wait_time)
+            else:
+                logger.error("❌ Todas as tentativas falharam!")
+                raise
 
 
 if __name__ == "__main__":
