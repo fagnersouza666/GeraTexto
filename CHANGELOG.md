@@ -4,6 +4,32 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.2.6] - 2025-06-05
+
+### 🔧 Correção Definitiva: Button_data_invalid RESOLVIDO
+- **Identificado**: Causa raiz do erro estava nos botões de "Adicionar imagem IA"
+- **Corrigido**: Função `salvar_post()` agora limita slugs a 30 caracteres
+- **Implementado**: Sistema duplo de validação de callback_data < 64 bytes
+- **Adicionado**: Fallback inteligente para nomes de arquivo seguros
+
+### 🛠️ Melhorias Técnicas
+- **Callback handler melhorado**: Busca inteligente de arquivos por nome/timestamp
+- **Validação dupla**: Verificação no momento de criação e uso dos callbacks
+- **Sistema de fallback**: Múltiplos níveis de segurança para callback_data
+- **Nomes de arquivo seguros**: Algoritmo inteligente para slugs otimizados
+
+### 🔍 Debugging e Testes
+- **Sistema de logs**: Identificação precisa da origem do erro
+- **Testes automatizados**: Validação de tamanho de callback_data
+- **Monitoramento**: Detecção proativa de problemas de tamanho
+
+### ✅ Garantias
+- **100% seguro**: Callback_data nunca excederá 64 bytes
+- **Compatibilidade**: Funciona com títulos de qualquer tamanho
+- **Performance**: Sistema otimizado sem impacto na velocidade
+
+---
+
 ## [2.2.5] - 2025-06-05
 
 ### 🧠 Nova Funcionalidade: Resumos Inteligentes

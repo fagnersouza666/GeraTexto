@@ -56,7 +56,26 @@ def gerar_post(tema: str) -> str:
 
 def salvar_post(tema: str, conteudo: str) -> Path:
     """Salva o conteúdo em arquivo Markdown e retorna o caminho criado."""
+    # Limitar o slug para evitar nomes de arquivo muito longos
+    # Isso evita problemas com callback_data > 64 bytes
     slug = "-".join(tema.lower().split())
+
+    # Limitar slug a 30 caracteres para garantir nome de arquivo seguro
+    if len(slug) > 30:
+        # Pegar palavras importantes e limitar
+        palavras = slug.split("-")
+        slug_limitado = ""
+        for palavra in palavras:
+            if len(slug_limitado + palavra + "-") <= 30:
+                slug_limitado += palavra + "-"
+            else:
+                break
+        slug = slug_limitado.rstrip("-")
+
+        # Se ainda está vazio, usar apenas as primeiras letras
+        if not slug:
+            slug = tema.lower().replace(" ", "")[:30]
+
     filename = datetime.now().strftime(f"%Y%m%d_%H%M%S_{slug}.md")
     OUTPUT_DIR.mkdir(exist_ok=True)
     caminho = OUTPUT_DIR / filename

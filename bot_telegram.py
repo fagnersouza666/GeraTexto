@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 import logging
 import sys
+from datetime import datetime
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -116,10 +117,24 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             post = gerar_post(tema)
             arquivo = salvar_post(tema, post)
 
+            # Criar botão para adicionar imagem com callback_data seguro
+            callback_img = f"img|{arquivo}"
+
+            # Verificar se callback_data não excede 64 bytes
+            if len(callback_img.encode()) > 64:
+                # Usar apenas o nome do arquivo sem path se for muito longo
+                nome_arquivo = arquivo.name
+                callback_img = f"img|{nome_arquivo}"
+
+                # Se ainda for muito longo, usar apenas timestamp
+                if len(callback_img.encode()) > 64:
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    callback_img = f"img|{timestamp}"
+
             keyboard = [
                 [
                     InlineKeyboardButton(
-                        "🎨 Adicionar imagem IA", callback_data=f"img|{arquivo}"
+                        "🎨 Adicionar imagem IA", callback_data=callback_img
                     )
                 ]
             ]
@@ -221,8 +236,35 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await query.message.edit_text("🎨 Gerando imagem...")
 
             try:
-                caminho = Path(data.split("|", 1)[1])
-                tema = caminho.stem
+                arquivo_info = data.split("|", 1)[1]
+
+                # Se é só um nome de arquivo, procurar na pasta posts
+                if not "/" in arquivo_info:
+                    # Procurar arquivo na pasta posts
+                    posts_dir = Path("posts")
+                    arquivos_encontrados = list(posts_dir.glob(f"*{arquivo_info}*"))
+
+                    if arquivos_encontrados:
+                        caminho = arquivos_encontrados[0]  # Pegar o primeiro encontrado
+                    else:
+                        # Se não encontrou, tentar usar como timestamp
+                        arquivos_recentes = sorted(
+                            posts_dir.glob("*.md"),
+                            key=lambda x: x.stat().st_mtime,
+                            reverse=True,
+                        )
+                        if arquivos_recentes:
+                            caminho = arquivos_recentes[0]  # Pegar o mais recente
+                        else:
+                            raise FileNotFoundError("Nenhum arquivo encontrado")
+                else:
+                    caminho = Path(arquivo_info)
+
+                tema = (
+                    caminho.stem.split("_", 2)[-1]
+                    if "_" in caminho.stem
+                    else caminho.stem
+                )
                 img_path = caminho.with_suffix(".png")
 
                 gerar_imagem(tema, img_path)
@@ -262,11 +304,24 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 post = gerar_post(tendencia_data["tema_post"])
                 arquivo = salvar_post(tendencia_data["titulo"], post)
 
-                # Criar botão para adicionar imagem
+                # Criar botão para adicionar imagem com callback_data seguro
+                callback_img = f"img|{arquivo}"
+
+                # Verificar se callback_data não excede 64 bytes
+                if len(callback_img.encode()) > 64:
+                    # Usar apenas o nome do arquivo sem path se for muito longo
+                    nome_arquivo = arquivo.name
+                    callback_img = f"img|{nome_arquivo}"
+
+                    # Se ainda for muito longo, usar apenas timestamp
+                    if len(callback_img.encode()) > 64:
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        callback_img = f"img|{timestamp}"
+
                 keyboard = [
                     [
                         InlineKeyboardButton(
-                            "🎨 Adicionar imagem IA", callback_data=f"img|{arquivo}"
+                            "🎨 Adicionar imagem IA", callback_data=callback_img
                         )
                     ]
                 ]

@@ -2,7 +2,7 @@
 
 **Bot Telegram para geração automatizada de conteúdo com IA**
 
-Versão: **2.2.5** | Status: ✅ **Funcional**
+Versão: **2.2.6** | Status: ✅ **Funcional** | Button_data_invalid: ✅ **Resolvido Definitivamente**
 
 ## 📋 Descrição
 
