@@ -2,8 +2,13 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Copiar arquivos
+# Primeiro copiar apenas requirements.txt para aproveitar cache do Docker
 COPY requirements.txt .
+
+# Instalar dependências durante o build
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Agora copiar o resto dos arquivos
 COPY . .
 
 # Healthcheck
