@@ -26,7 +26,7 @@ O GeraTexto Bot é um bot do Telegram que utiliza inteligência artificial para 
   - Token do Bot Telegram (via @BotFather)
   - Chave da API OpenAI
 
-### Configuração Rápida
+### ⚡ Configuração Rápida (Recomendado)
 
 1. **Clone o repositório:**
 ```bash
@@ -40,7 +40,17 @@ cp .env.example .env
 # Edite o arquivo .env com suas chaves
 ```
 
-3. **Inicie o bot:**
+3. **Inicie o bot (método mais simples):**
+```bash
+./start-bot.sh
+```
+
+**OU use o script completo:**
+```bash
+./run-docker.sh
+```
+
+**OU use docker-compose diretamente:**
 ```bash
 docker-compose up -d
 ```
@@ -49,6 +59,12 @@ docker-compose up -d
 ```bash
 docker logs -f geratexto-bot
 ```
+
+### 📋 Scripts Disponíveis
+
+- **`./start-bot.sh`** - Script simplificado que sempre funciona ✅
+- **`./run-docker.sh`** - Script completo com validações
+- **`docker-compose up -d`** - Comando direto do Docker Compose
 
 ### Arquivo .env
 

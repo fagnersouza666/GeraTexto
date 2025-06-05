@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para executar o GeraTexto via Docker
+# Script para executar o GeraTexto via Docker - Versão Corrigida
 echo "🐳 Iniciando GeraTexto via Docker..."
 
 # Verificar se o arquivo .env existe
@@ -40,97 +40,58 @@ echo "🤖 Usando modelo: $OPENAI_MODEL"
 
 # Parar containers antigos se existirem
 echo "🛑 Parando containers antigos..."
-docker stop geratexto-bot 2>/dev/null || true
-docker rm geratexto-bot 2>/dev/null || true
+docker-compose down --remove-orphans 2>/dev/null || true
 
-# Remover redes antigas se existirem
-echo "🌐 Configurando rede Docker..."
-docker network rm geratexto-network 2>/dev/null || true
+# Construir e iniciar com docker-compose (método que funciona 100%)
+echo "🔨 Construindo e iniciando container..."
+docker-compose up --build -d
 
-# Construir a imagem
-echo "🔨 Construindo imagem Docker..."
-docker build -t geratexto . || {
-    echo "❌ Erro ao construir imagem Docker"
-    echo "💡 Tentando com docker-compose..."
-    docker-compose down 2>/dev/null
-    docker-compose up --build -d
+# Aguardar inicialização
+echo "⏳ Aguardando inicialização..."
+sleep 8
+
+# Verificar se está funcionando
+if docker-compose ps | grep -q "Up"; then
+    echo "✅ Container iniciado com sucesso!"
     
-    # Verificar se funcionou
+    # Aguardar mais um pouco para logs aparecerem
     sleep 5
-    if docker logs geratexto-bot 2>/dev/null | grep -q "✅ Dependências"; then
-        echo "✅ GeraTexto iniciado via docker-compose!"
+    
+    # Verificar logs para confirmar funcionamento
+    echo "🔍 Verificando status..."
+    if docker logs geratexto-bot 2>/dev/null | grep -q "Bot configurado com sucesso"; then
+        echo "🎉 GeraTexto funcionando perfeitamente!"
         echo ""
-        echo "📋 Comandos úteis:"
-        echo "   Ver logs:        docker logs -f geratexto-bot"
-        echo "   Parar bot:       docker-compose down"
-        echo "   Reiniciar bot:   docker-compose restart"
+        echo "🤖 Bot está rodando! Teste no Telegram:"
+        echo "   /start - Inicializar o bot"
+        echo "   /gerar <tema> - Gerar post sobre um tema"
+        echo "   /tendencias - Ver tendências atuais"
+        echo ""
+    elif docker logs geratexto-bot 2>/dev/null | grep -q "Dependências.*instaladas"; then
+        echo "✅ Bot ainda inicializando, aguarde mais alguns segundos..."
+        echo "📋 Verifique os logs: docker logs -f geratexto-bot"
     else
-        echo "❌ Problemas persistem. Verificar logs: docker logs geratexto-bot"
-    fi
-    exit $?
-}
-
-# Executar o container com configurações de DNS e rede
-echo "🚀 Iniciando container com configurações de rede..."
-docker run -d \
-    --name geratexto-bot \
-    --env-file .env \
-    --restart unless-stopped \
-    --dns 8.8.8.8 \
-    --dns 8.8.4.4 \
-    --dns 1.1.1.1 \
-    --add-host api.telegram.org:149.154.167.220 \
-    --add-host api.openai.com:104.18.7.192 \
-    --sysctl net.ipv6.conf.all.disable_ipv6=1 \
-    --network-mode bridge \
-    -v "$(pwd)/posts:/app/posts" \
-    -v "$(pwd)/templates:/app/templates" \
-    geratexto
-
-# Aguardar inicialização e verificar logs
-sleep 5
-
-if docker ps --filter name=geratexto-bot --filter status=running | grep -q geratexto-bot; then
-    echo "✅ Container iniciado! Verificando conectividade..."
-    
-    # Verificar se as dependências foram instaladas
-    if docker logs geratexto-bot 2>/dev/null | grep -q "✅ Dependências offline instaladas"; then
-        echo "✅ Dependências instaladas com sucesso!"
-        
-        # Verificar se há erros de conectividade
-        if docker logs geratexto-bot 2>/dev/null | grep -q "Temporary failure in name resolution"; then
-            echo "⚠️ Ainda há problemas de DNS. Tentando docker-compose..."
-            docker stop geratexto-bot
-            docker rm geratexto-bot
-            docker-compose up -d
-        else
-            echo "🎉 GeraTexto funcionando perfeitamente!"
-        fi
+        echo "⚠️ Bot iniciado, verificando logs..."
+        echo "📋 Para diagnóstico: docker logs geratexto-bot"
     fi
     
-    echo ""
-    echo "🎉 Bot está rodando! Teste no Telegram:"
-    echo "   /start - Inicializar o bot"
-    echo "   /gerar <tema> - Gerar post sobre um tema"
-    echo "   /tendencias - Ver tendências atuais"
     echo ""
     echo "📊 Status do container:"
-    docker ps --filter name=geratexto-bot
+    docker-compose ps
     echo ""
     echo "📋 Comandos úteis:"
     echo "   Ver logs:        docker logs -f geratexto-bot"
-    echo "   Parar bot:       docker stop geratexto-bot"
-    echo "   Reiniciar bot:   docker restart geratexto-bot"
-    echo "   Remover bot:     docker rm -f geratexto-bot"
-    echo "   Teste DNS:       docker exec geratexto-bot nslookup google.com"
+    echo "   Parar bot:       docker-compose down"
+    echo "   Reiniciar bot:   docker-compose restart"
+    echo "   Rebuild:         docker-compose up --build -d"
+    
 else
     echo "❌ Erro ao iniciar container"
-    echo "📋 Tentando com docker-compose como fallback..."
-    docker-compose down 2>/dev/null
-    docker-compose up -d
-    
+    echo "📋 Verificando problemas..."
+    docker-compose ps
     echo ""
-    echo "📋 Para verificar logs e diagnóstico:"
-    echo "   docker logs -f geratexto-bot"
-    echo "   python verificar_conectividade.py"
+    echo "📋 Para diagnóstico:"
+    echo "   docker logs geratexto-bot"
+    echo "   docker-compose logs"
+    exit 1
 fi 
