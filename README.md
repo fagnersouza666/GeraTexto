@@ -1,6 +1,6 @@
 # GeraTexto Bot 🤖
 
-**Versão 2.3.1** - Bot Telegram inteligente para geração de conteúdo com IA
+**Versão 2.4.0** - Bot Telegram inteligente para geração de conteúdo com IA
 
 ## 🚀 Recursos Principais
 
@@ -11,55 +11,34 @@
 - **📎 Anexos Automáticos**: Arquivos .txt para cópia fácil
 - **💾 Preservação de Conteúdo**: Texto original mantido ao gerar imagens
 
-## 🛠️ Instalação e Execução
+## 🐳 Instalação e Execução com Docker
 
-### ⭐ Método Principal: Execução Local
+### Pré-requisitos
+- Docker e Docker Compose instalados
+- Chaves de API (Telegram e OpenAI)
 
-**Este é o método recomendado e mais estável:**
+### 🚀 Instalação Rápida
 
 ```bash
 # 1. Clonar repositório
 git clone <repository-url>
 cd GeraTexto
 
-# 2. Criar ambiente virtual
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# ou .venv\Scripts\activate no Windows
-
-# 3. Instalar dependências
-pip install -r requirements.txt
-
-# 4. Configurar variáveis de ambiente
+# 2. Configurar variáveis de ambiente
 cp .env.example .env
 # Edite .env com suas chaves API
 
-# 5. Executar bot
-./run-bot.sh
-```
-
-### 🐳 Método Alternativo: Docker
-
-**⚠️ Limitações conhecidas: problemas de rede em alguns sistemas**
-
-```bash
-# Configurar variáveis
-cp .env.example .env
-# Edite .env com suas chaves
-
-# Tentar Docker (pode falhar por problemas de rede)
+# 3. Iniciar com Docker
 docker-compose up -d
 
-# Se houver problemas de rede:
-./fix-docker.sh
-
-# Para verificar logs:
+# 4. Verificar status
+docker-compose ps
 docker logs -f geratexto-bot
 ```
 
-## ⚙️ Configuração
+### ⚙️ Configuração
 
-Crie o arquivo `.env` com:
+Crie o arquivo `.env` com suas chaves:
 
 ```env
 TELEGRAM_TOKEN=seu_token_telegram
@@ -69,8 +48,15 @@ OPENAI_MODEL=gpt-4o-mini
 
 ### Como Obter as Chaves:
 
-1. **Telegram Token**: @BotFather no Telegram
-2. **OpenAI API Key**: [platform.openai.com](https://platform.openai.com)
+1. **Telegram Token**: 
+   - Acesse @BotFather no Telegram
+   - Digite `/newbot` e siga as instruções
+   - Copie o token fornecido
+
+2. **OpenAI API Key**: 
+   - Acesse [platform.openai.com](https://platform.openai.com)
+   - Vá em API Keys > Create new secret key
+   - Copie a chave gerada
 
 ## 📋 Comandos do Bot
 
@@ -83,127 +69,204 @@ OPENAI_MODEL=gpt-4o-mini
 ## 💡 Exemplos de Uso
 
 ```
-/gerar Inteligência Artificial
+/gerar Inteligência Artificial em 2024
 /gerar https://techcrunch.com/artigo-exemplo
 /tendencias
 ```
 
-## 🔧 Troubleshooting
+## 🔧 Comandos Docker Úteis
 
-### ✅ Execução Local (Recomendado)
-
-**Se o bot não iniciar:**
+### Gerenciamento Básico
 ```bash
-# Verificar ambiente virtual
-source .venv/bin/activate
+# Iniciar serviços
+docker-compose up -d
 
-# Reinstalar dependências
-pip install --upgrade pip
-pip install -r requirements.txt
+# Parar serviços
+docker-compose down
 
-# Verificar variáveis de ambiente
+# Rebuild completo
+docker-compose up --build
+
+# Ver logs em tempo real
+docker logs -f geratexto-bot
+
+# Ver status
+docker-compose ps
+```
+
+### Debugging e Manutenção
+```bash
+# Acessar shell do container
+docker exec -it geratexto-bot bash
+
+# Verificar conectividade
+docker exec geratexto-bot python3 verificar_conectividade.py
+
+# Restart rápido
+docker restart geratexto-bot
+
+# Limpar cache e rebuild
+docker-compose down
+docker system prune -f
+docker-compose up --build
+```
+
+## 🛠️ Troubleshooting
+
+### ❌ Container não inicia
+```bash
+# Verificar logs de erro
+docker logs geratexto-bot
+
+# Rebuild completo
+docker-compose down
+docker-compose up --build
+
+# Verificar .env
 cat .env
-
-# Executar com logs detalhados
-python bot_telegram.py
 ```
 
-### 🐳 Problemas no Docker
-
-**Erro "network bridge not found":**
-- Este é um problema conhecido em alguns sistemas
-- **Solução**: Use execução local com `./run-bot.sh`
-
-**Erro "ModuleNotFoundError":**
+### ❌ Problemas de conectividade
 ```bash
-# Limpar e reconstruir
-./fix-docker.sh
+# Testar conectividade dentro do container
+docker exec geratexto-bot python3 verificar_conectividade.py
+
+# Verificar se o network_mode está funcionando
+docker exec geratexto-bot ping 8.8.8.8
 ```
 
-**Problemas de DNS:**
-```bash
-# Script de correção
-./fix-docker.sh
-```
+### ❌ Bot não responde no Telegram
+- Verifique se o TELEGRAM_TOKEN está correto no .env
+- Confirme se o bot foi criado corretamente via @BotFather
+- Verifique logs: `docker logs -f geratexto-bot`
 
-### 🚨 Problemas Gerais
-
-**Bot não responde no Telegram:**
-- Verifique se o TELEGRAM_TOKEN está correto
-- Confirme se o bot foi iniciado via @BotFather
-- Teste conectividade: `python verificar_conectividade.py`
-
-**Erro de API OpenAI:**
-- Verifique se OPENAI_API_KEY está correta
+### ❌ Erro de API OpenAI
+- Verifique se OPENAI_API_KEY está correta no .env
 - Confirme se há créditos na conta OpenAI
+- Teste com modelo diferente (ex: gpt-3.5-turbo)
 
 ## 📁 Estrutura do Projeto
 
 ```
 GeraTexto/
-├── bot_telegram.py          # Bot principal
-├── escritor_ia.py           # Geração de textos
-├── imagem_ia.py            # Geração de imagens
-├── gerador_tendencias.py   # Captação de tendências
-├── run-bot.sh              # ⭐ Script de execução principal
-├── fix-docker.sh           # Correção Docker
-├── posts/                  # Posts gerados
-├── templates/              # Templates
-└── tests/                  # Testes unitários
+├── docker-compose.yml      # 🐳 Configuração Docker
+├── Dockerfile              # 🐳 Imagem Docker
+├── start.sh                # 🚀 Script de inicialização
+├── bot_telegram.py         # 🤖 Bot principal
+├── escritor_ia.py          # ✍️ Geração de textos
+├── imagem_ia.py           # 🎨 Geração de imagens
+├── gerador_tendencias.py  # 📈 Captação de tendências
+├── healthcheck.py         # 🏥 Verificação de saúde
+├── verificar_conectividade.py # 🌐 Teste de conectividade
+├── posts/                 # 📄 Posts gerados
+├── templates/             # 📋 Templates
+└── tests/                 # 🧪 Testes unitários
 ```
 
-## 🧪 Testes
+## 🧪 Executar Testes
 
 ```bash
-# Ativar ambiente virtual
-source .venv/bin/activate
-
-# Executar todos os testes
-python -m pytest
+# Executar testes dentro do container
+docker exec geratexto-bot python -m pytest
 
 # Teste específico
-python -m pytest tests/test_escritor.py -v
+docker exec geratexto-bot python -m pytest tests/test_escritor.py -v
 
 # Com coverage
-python -m pytest --cov=. tests/
+docker exec geratexto-bot python -m pytest --cov=. tests/
 ```
 
 ## 📊 Monitoramento
 
-### Logs em Tempo Real:
+### Logs em Tempo Real
 ```bash
-# Execução local (recomendado)
-# Os logs aparecem diretamente no terminal
+# Logs completos
+docker logs -f geratexto-bot
 
-# Docker (se funcionando)
+# Apenas últimas 50 linhas
+docker logs --tail 50 geratexto-bot
+
+# Logs com timestamp
+docker logs -t geratexto-bot
+```
+
+### Status e Performance
+```bash
+# Status do container
+docker stats geratexto-bot
+
+# Informações do container
+docker inspect geratexto-bot
+
+# Uso de recursos
+docker exec geratexto-bot top
+```
+
+## 🔄 Atualização
+
+Para atualizar o bot:
+
+```bash
+# 1. Parar container
+docker-compose down
+
+# 2. Atualizar código
+git pull
+
+# 3. Rebuild e reiniciar
+docker-compose up --build -d
+
+# 4. Verificar funcionamento
 docker logs -f geratexto-bot
 ```
 
-### Verificação de Status:
+## 🚨 Backup e Restauração
+
+### Backup dos Dados
 ```bash
-# Verificar se está executando
-ps aux | grep bot_telegram
+# Backup da pasta posts
+docker cp geratexto-bot:/app/posts ./backup-posts-$(date +%Y%m%d)
 
-# Verificar conectividade
-python verificar_conectividade.py
-
-# Status Docker (se usando)
-docker-compose ps
+# Backup completo
+tar -czf backup-geratexto-$(date +%Y%m%d).tar.gz posts/ templates/ .env
 ```
 
-## 🎯 Recomendações de Uso
+### Restauração
+```bash
+# Restaurar posts
+docker cp ./backup-posts-YYYYMMDD geratexto-bot:/app/posts
 
-1. **🥇 Primeira Opção**: `./run-bot.sh` (execução local)
-2. **🥈 Segunda Opção**: `docker-compose up -d` (Docker)
-3. **🔧 Se Docker falhar**: Use sempre execução local
+# Restart após restauração
+docker restart geratexto-bot
+```
 
-## 🔄 Atualizações Recentes (v2.3.1)
+## 🔄 Atualizações Recentes (v2.4.0)
 
-- ✅ **Execução Local Otimizada**: Método principal e mais estável
-- ✅ **Script run-bot.sh**: Execução simplificada e robusta
-- ✅ **Correção DNS Docker**: Melhorias para ambientes que suportam
-- ⚠️ **Docker Limitado**: Problemas de rede em alguns sistemas
-- ✅ **Logs Aprimorados**: Melhor debugging e monitoramento
+- ✅ **Docker Exclusivo**: Removida execução local, foco 100% em Docker
+- ✅ **Network Host**: Resolve problemas de conectividade DNS
+- ✅ **Instalação Runtime**: Dependências instaladas no start para evitar problemas de build
+- ✅ **Healthcheck Robusto**: Verificação de saúde aprimorada
+- ✅ **Logs Detalhados**: Melhor acompanhamento do funcionamento
+- ✅ **Start Script**: Instalação robusta com retry e backoff
+
+## 📋 Configurações Avançadas
+
+### Personalizar Modelos OpenAI
+No arquivo `.env`:
+```env
+OPENAI_MODEL=gpt-4o-mini     # Mais rápido e barato
+# ou
+OPENAI_MODEL=gpt-4o          # Mais inteligente
+```
+
+### Ajustar Timeouts
+Para conexões lentas, edite `docker-compose.yml`:
+```yaml
+healthcheck:
+  interval: 120s    # Aumentar intervalo
+  timeout: 60s      # Aumentar timeout
+  start_period: 180s # Mais tempo para iniciar
+```
 
 ## 📄 Licença
 
@@ -211,11 +274,11 @@ MIT License - Veja [LICENSE](LICENSE) para detalhes.
 
 ## 🆘 Suporte
 
-- **Método Recomendado**: Sempre tente `./run-bot.sh` primeiro
+- **Docker Logs**: Sempre verifique `docker logs -f geratexto-bot` primeiro
 - **Issues**: Use o sistema de issues do GitHub
-- **Logs**: Sempre inclua logs relevantes ao reportar problemas
-- **Docker**: Se houver problemas, mude para execução local
+- **Conectividade**: Teste com `docker exec geratexto-bot python3 verificar_conectividade.py`
+- **Rebuild**: Quando em dúvida, use `docker-compose up --build`
 
 ---
 
-**GeraTexto v2.3.1** - Execução Local Otimizada 🎯
+**GeraTexto v2.4.0** - Docker Exclusivo e Otimizado 🐳

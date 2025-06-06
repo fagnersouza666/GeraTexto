@@ -4,7 +4,39 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
-## [2.3.1] - 2025-06-05 - **Correção DNS e Estabilidade**
+## [2.4.0] - 2024-06-05 19:20 🐳
+
+### Docker Exclusivo - Simplificação Total
+- ✅ **BREAKING CHANGE**: Removida execução local, apenas Docker
+- ✅ **Network Host**: Resolver definitivamente problemas de conectividade DNS
+- ✅ **Instalação Runtime**: Dependências instaladas no start.sh para evitar problemas de build
+- ✅ **Configuração Simplificada**: docker-compose.yml otimizado e sem conflitos
+- ✅ **Scripts Removidos**: Eliminados scripts locais (run-bot.sh, fix-docker.sh, etc.)
+- ✅ **Documentação Focada**: README reescrito 100% para Docker
+- ✅ **Healthcheck Robusto**: Verificação de saúde com timeouts ajustados
+- ✅ **Start Script Melhorado**: Retry com backoff exponencial para instalação
+- ✅ **Logs Detalhados**: Acompanhamento completo do processo de inicialização
+
+### Funcionalidades Mantidas
+- 🤖 Geração de posts com IA
+- 🌐 Processamento de URLs
+- 📈 Tendências automáticas
+- 🎨 Geração de imagens DALL-E
+- 📎 Anexos automáticos .txt
+- 💾 Preservação de texto ao gerar imagens
+
+### Comandos Docker Principais
+```bash
+docker-compose up -d          # Iniciar
+docker logs -f geratexto-bot  # Ver logs
+docker-compose down           # Parar
+```
+
+---
+
+## [2.3.1] - 2024-06-05 16:00
+
+### Resolução de Problemas de Conectividade DNS
 
 ### 🔧 Correções Críticas
 - **DNS Container**: Resolvido problema de conectividade DNS dentro do Docker
