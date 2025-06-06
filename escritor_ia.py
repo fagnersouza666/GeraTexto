@@ -168,13 +168,13 @@ def processar_url_para_post(url: str) -> tuple[str, str]:
 Analise o seguinte conteúdo de uma página web e crie um resumo conciso e informativo:
 
 CONTEÚDO:
-{conteudo_completo[:3000]}  # Limitar para não exceder tokens
+{conteudo_completo[:4000]}  # Limitar para não exceder tokens
 
 INSTRUÇÕES:
 1. Identifique o assunto principal
 2. Extraia os pontos mais importantes
-3. Crie um resumo de 2-3 parágrafos (máximo 500 palavras)
-4. Mantenha o tom profissional e informativo
+3. Crie um resumo de 2-3 parágrafos (máximo 1000 palavras)
+4. Mantenha o tom profissional, informativo e provocador
 5. Foque nos aspectos mais relevantes e interessantes
 
 RESUMO:
@@ -243,9 +243,7 @@ def gerar_post_de_url(url: str) -> tuple[str, str]:
         corpo = "\n".join(linhas[1:]) if len(linhas) > 1 else ""
 
         template = _carregar_template()
-        post_completo = template.render(
-            titulo=titulo_sugerido, gancho=gancho, corpo=corpo
-        )
+        post_completo = template.render(titulo=titulo_sugerido, gancho=url, corpo=corpo)
 
         return titulo_sugerido, post_completo
 
