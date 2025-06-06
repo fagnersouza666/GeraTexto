@@ -4,6 +4,29 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.4.1] - 2025-01-10 15:58 🔧
+
+### Correção Crítica - SyntaxError Resolvido
+- ✅ **FIXO**: Erro de sintaxe `unicodeescape` no arquivo `escritor_ia.py`
+- ✅ **Corrigido**: Sequência `\n\URL:` que causava erro Unicode 
+- ✅ **Substituído**: Por `\n\nURL:` para formatação correta
+- ✅ **Testado**: Bot inicializando e funcionando perfeitamente
+
+### 🔧 Detalhes Técnicos
+- **Arquivo afetado**: `escritor_ia.py` linha 40
+- **Erro original**: `'unicodeescape' codec can't decode bytes in position 2-3`
+- **Causa**: Sequência `\U` interpretada como escape Unicode inválido
+- **Solução**: Corrigido para quebra de linha dupla seguida de "URL:"
+
+### ✅ Status Pós-Correção
+- 🟢 Bot executando normalmente
+- 🟢 Todos os comandos operacionais
+- 🟢 Geração de posts funcionando
+- 🟢 Processamento de URLs ativo
+- 🟢 Sistema de tendências ok
+
+---
+
 ## [2.4.0] - 2024-06-05 19:20 🐳
 
 ### Docker Exclusivo - Simplificação Total

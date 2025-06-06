@@ -1,6 +1,6 @@
 # GeraTexto Bot 🤖
 
-**Versão 2.4.0** - Bot Telegram inteligente para geração de conteúdo com IA
+**Versão 2.4.1** - Bot Telegram inteligente para geração de conteúdo com IA
 
 ## 🚀 Recursos Principais
 
@@ -278,6 +278,23 @@ MIT License - Veja [LICENSE](LICENSE) para detalhes.
 - **Issues**: Use o sistema de issues do GitHub
 - **Conectividade**: Teste com `docker exec geratexto-bot python3 verificar_conectividade.py`
 - **Rebuild**: Quando em dúvida, use `docker-compose up --build`
+
+## 🐛 Problemas Resolvidos (v2.4.1)
+
+### ❌ SyntaxError: unicode error 'unicodeescape'
+**Problema:** Erro de sintaxe na linha 40 do `escritor_ia.py`
+```
+SyntaxError: (unicode error) 'unicodeescape' codec can't decode bytes in position 2-3: truncated \UXXXXXXXX escape
+```
+
+**Solução:** Corrigido sequência de escape Unicode inválida de `\n\URL:` para `\n\nURL:`
+
+### ✅ Status Atual
+- ✅ Bot inicializando corretamente
+- ✅ Todos os comandos funcionais
+- ✅ Geração de posts operacional
+- ✅ Processamento de URLs ativo
+- ✅ Sistema de tendências funcionando
 
 ---
 

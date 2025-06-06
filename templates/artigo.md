@@ -1,5 +1,4 @@
 # {{ titulo }}
-
-**Gancho:** {{ gancho }}
+{{ gancho }}
 
 {{ corpo }}

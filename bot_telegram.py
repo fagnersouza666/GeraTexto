@@ -220,13 +220,11 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
             # Mostrar origem se foi de URL
             origem_texto = (
-                f"\n🌐 **Baseado em:** {input_usuario}"
-                if eh_url_valida(input_usuario)
-                else ""
+                f"\n🌐 {input_usuario}" if eh_url_valida(input_usuario) else ""
             )
 
             await processing_msg.edit_text(
-                f"✍️ **Título:** {titulo}{origem_texto}\n\n{post}",
+                f"✍️ {titulo}{origem_texto}\n\n{post}",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )

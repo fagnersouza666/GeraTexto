@@ -37,7 +37,7 @@ def _carregar_template() -> Template:
 def gerar_post(tema: str) -> str:
     """Gera o texto do post a partir de um tema utilizando a API da OpenAI."""
     estilo = _carregar_estilo()
-    prompt = f"{estilo}\n\nTema: {tema}"
+    prompt = f"{estilo}\n\nURL: {tema}"
     modelo = obter_modelo_openai()
 
     try:
