@@ -223,8 +223,22 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 f"\n🌐 {input_usuario}" if eh_url_valida(input_usuario) else ""
             )
 
+            # Validar tamanho da mensagem (limite Telegram: 4096 caracteres)
+            mensagem_completa = f"✍️ {titulo}{origem_texto}\n\n{post}"
+
+            if len(mensagem_completa) > 4000:  # Margem de segurança
+                # Truncar o post mantendo o título e origem
+                cabecalho = f"✍️ {titulo}{origem_texto}\n\n"
+                espaco_disponivel = 4000 - len(cabecalho) - 50  # Margem para "..."
+
+                post_truncado = (
+                    post[:espaco_disponivel]
+                    + "\n\n✂️ *Post truncado. Veja arquivo anexo para versão completa.*"
+                )
+                mensagem_completa = cabecalho + post_truncado
+
             await processing_msg.edit_text(
-                f"✍️ {titulo}{origem_texto}\n\n{post}",
+                mensagem_completa,
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )
@@ -423,12 +437,34 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     parse_mode="Markdown",
                 )
 
-                # Gerar post usando o tema processado (resumo inteligente)
-                post = gerar_post(tendencia_data["tema_post"])
-                arquivo = salvar_post(tendencia_data["titulo"], post)
+                # Se tem link da notícia, processar como URL (extrair conteúdo)
+                if tendencia_data.get("link"):
+                    await query.message.edit_text(
+                        f"🌐 Extraindo conteúdo de: **{tendencia_data['titulo']}**...",
+                        parse_mode="Markdown",
+                    )
+
+                    try:
+                        # Processar URL como se fosse comando /gerar <URL>
+                        titulo, post = gerar_post_de_url(tendencia_data["link"])
+                        arquivo = salvar_post(titulo, post)
+                    except Exception as e:
+                        # Fallback: usar o método antigo se falhar
+                        await query.message.edit_text(
+                            f"⚠️ Erro ao extrair conteúdo, usando título: **{tendencia_data['titulo']}**...",
+                            parse_mode="Markdown",
+                        )
+                        titulo = tendencia_data["titulo"]
+                        post = gerar_post(tendencia_data["tema_post"])
+                        arquivo = salvar_post(titulo, post)
+                else:
+                    # Fallback: se não tem link, usar o método antigo
+                    titulo = tendencia_data["titulo"]
+                    post = gerar_post(tendencia_data["tema_post"])
+                    arquivo = salvar_post(titulo, post)
 
                 # Salvar também arquivo .txt para anexar
-                arquivo_txt = salvar_texto_puro(tendencia_data["titulo"], post)
+                arquivo_txt = salvar_texto_puro(titulo, post)
 
                 # Criar botão para adicionar imagem com callback_data seguro
                 callback_img = f"img|{arquivo}"
@@ -452,8 +488,29 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                     ]
                 ]
 
+                # Mostrar origem se foi processado via URL
+                origem_texto = (
+                    f"\n🌐 {tendencia_data['link']}"
+                    if tendencia_data.get("link")
+                    else ""
+                )
+
+                # Validar tamanho da mensagem (limite Telegram: 4096 caracteres)
+                mensagem_completa = f"📈 **{titulo}**{origem_texto}\n\n{post}"
+
+                if len(mensagem_completa) > 4000:  # Margem de segurança
+                    # Truncar o post mantendo o título e origem
+                    cabecalho = f"📈 **{titulo}**{origem_texto}\n\n"
+                    espaco_disponivel = 4000 - len(cabecalho) - 50  # Margem para "..."
+
+                    post_truncado = (
+                        post[:espaco_disponivel]
+                        + "\n\n✂️ *Post truncado. Veja arquivo anexo para versão completa.*"
+                    )
+                    mensagem_completa = cabecalho + post_truncado
+
                 await query.message.edit_text(
-                    f"📈 **Tendência:** {tendencia_data['titulo']}\n\n{post}",
+                    mensagem_completa,
                     reply_markup=InlineKeyboardMarkup(keyboard),
                     parse_mode="Markdown",
                 )
@@ -471,13 +528,24 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
             except Exception as e:
                 logger.error(f"Erro ao processar tendência: {e}")
-                await query.message.edit_text(f"❌ Erro ao gerar post: {str(e)}")
-                await query.answer("❌ Erro ao gerar post", show_alert=True)
+                try:
+                    await query.message.edit_text(f"❌ Erro ao gerar post: {str(e)}")
+                except:
+                    # Se falhar ao editar, enviar nova mensagem
+                    await query.message.reply_text(f"❌ Erro ao gerar post: {str(e)}")
+
+                try:
+                    await query.answer("❌ Erro ao gerar post", show_alert=True)
+                except:
+                    pass  # Ignorar se não conseguir responder o callback
 
     except Exception as e:
         logger.error(f"Erro no callback: {e}")
-        if "query" in locals():
-            await query.answer("❌ Erro interno", show_alert=True)
+        try:
+            if "query" in locals():
+                await query.answer("❌ Erro interno", show_alert=True)
+        except:
+            pass  # Ignorar se não conseguir responder
 
 
 async def main() -> None:

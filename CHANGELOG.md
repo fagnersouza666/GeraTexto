@@ -4,6 +4,36 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.5.0] - 2025-01-10 16:30 ✨
+
+### Nova Funcionalidade - Clique em Tendência = Extração de URL
+- ✅ **IMPLEMENTADO**: Ao clicar numa tendência, bot extrai conteúdo da URL da notícia
+- ✅ **PROCESSAMENTO INTELIGENTE**: Usa `gerar_post_de_url()` para análise completa
+- ✅ **FALLBACK ROBUSTO**: Se falhar extração, usa método tradicional com título
+- ✅ **POSTS RICOS**: Conteúdo baseado na análise real da página, não apenas no título
+
+### 🔧 Correção Crítica - Message_too_long RESOLVIDO
+- ✅ **FIXO**: Erro "Message_too_long" quando posts excediam 4096 caracteres
+- ✅ **VALIDAÇÃO AUTOMÁTICA**: Verifica tamanho antes de enviar mensagem
+- ✅ **TRUNCAMENTO INTELIGENTE**: Mantém título e origem, trunca apenas o corpo
+- ✅ **AVISOS CLAROS**: Informa quando post foi truncado com referência ao anexo
+
+### 🛠️ Melhorias de Estabilidade
+- ✅ **ERROR HANDLING**: Tratamento robusto de erros em callbacks
+- ✅ **TIMEOUTS**: Prevenção de múltiplos erros em cascata
+- ✅ **PROMPTS OTIMIZADOS**: Limitação de 300-600 palavras (máx 3000 caracteres)
+- ✅ **LOGS MELHORADOS**: Debugging mais eficiente
+
+### 🎯 Workflow Atualizado - Tendências
+1. **`/tendencias`** → Lista tendências atuais
+2. **👆 Clique na tendência** → Bot detecta se tem URL
+3. **🌐 Se tem URL** → Extrai conteúdo completo da página
+4. **🧠 IA analisa** → Resume e gera post baseado no conteúdo real
+5. **📝 Post completo** → Baseado na informação extraída, não só no título
+6. **📎 Anexo automático** → Arquivo .txt com versão completa
+
+---
+
 ## [2.4.1] - 2025-01-10 15:58 🔧
 
 ### Correção Crítica - SyntaxError Resolvido

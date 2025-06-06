@@ -11,7 +11,7 @@ USER_AGENT = "GeraTextoBot/0.1"
 REDDIT_URL = "https://www.reddit.com/r/artificial/hot.json?limit=10"
 HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{}.json"
-TECHCRUNCH_RSS = "https://techcrunch.com/feed/"
+TECHCRUNCH_RSS = "https://techcrunch.com/tag/artificial-intelligence/feed/"
 
 
 logger = logging.getLogger(__name__)

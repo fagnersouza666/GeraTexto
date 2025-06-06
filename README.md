@@ -1,6 +1,6 @@
 # GeraTexto Bot 🤖
 
-**Versão 2.4.1** - Bot Telegram inteligente para geração de conteúdo com IA
+**Versão 2.5.0** - Bot Telegram inteligente para geração de conteúdo com IA
 
 ## 🚀 Recursos Principais
 
@@ -240,7 +240,15 @@ docker cp ./backup-posts-YYYYMMDD geratexto-bot:/app/posts
 docker restart geratexto-bot
 ```
 
-## 🔄 Atualizações Recentes (v2.4.0)
+## 🔄 Atualizações Recentes (v2.5.0)
+
+- ✅ **Nova Funcionalidade**: Clique em tendência agora extrai e analisa conteúdo da URL
+- ✅ **Posts Mais Ricos**: Baseados no conteúdo real da página, não apenas no título  
+- ✅ **Message_too_long RESOLVIDO**: Validação automática e truncamento inteligente
+- ✅ **Melhor Estabilidade**: Error handling robusto e prevenção de erros em cascata
+- ✅ **Prompts Otimizados**: Limitação de tamanho para evitar mensagens muito longas
+
+## 🔄 Versão Anterior (v2.4.0)
 
 - ✅ **Docker Exclusivo**: Removida execução local, foco 100% em Docker
 - ✅ **Network Host**: Resolve problemas de conectividade DNS
