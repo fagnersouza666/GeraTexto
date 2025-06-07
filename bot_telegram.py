@@ -278,19 +278,12 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             # Criar apenas os botões para cada tendência
             keyboard = []
 
-            msg_linhas = ["📈 **Tendências Atuais**", ""]
-
             for i, t in enumerate(topicos):
                 # Armazenar tanto título original quanto resumo
                 cache_key = f"{update.effective_chat.id}_{i}"
 
                 # Usar resumo se disponível, senão título original
                 tema_para_post = t.resumo if t.resumo else t.titulo
-                titulo_para_botao = (
-                    t.resumo[:35] + "..."
-                    if t.resumo and len(t.resumo) > 35
-                    else (t.resumo or t.titulo[:35] + "...")
-                )
 
                 context.bot._tendencias_cache[cache_key] = {
                     "titulo": t.titulo,
@@ -301,25 +294,26 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                 # Usar índice como callback_data (seguro)
                 callback_data = f"trend_{i}"
 
-                keyboard.append(
-                    [
-                        InlineKeyboardButton(
-                            f"📝 {titulo_para_botao}", callback_data=callback_data
-                        )
-                    ]
-                )
-
+                # Criar título do botão: número - título original - tradução
                 try:
                     traducao = traduzir_para_pt(t.titulo)
+                    if traducao == t.titulo:  # Se a tradução é igual ao original
+                        titulo_botao = f"{i+1}- {t.titulo}"
+                    else:
+                        titulo_botao = f"{i+1}- {t.titulo} - {traducao}"
                 except Exception:
-                    traducao = t.titulo
-                msg_linhas.append(f"{i+1}. {t.titulo} - {traducao}")
+                    titulo_botao = f"{i+1}- {t.titulo}"
 
-            msg_linhas.append("")
-            msg_linhas.append("👆 *Clique para gerar post:*")
+                # Limitar tamanho do botão para não exceder limites do Telegram
+                if len(titulo_botao) > 60:
+                    titulo_botao = titulo_botao[:57] + "..."
+
+                keyboard.append(
+                    [InlineKeyboardButton(titulo_botao, callback_data=callback_data)]
+                )
 
             await processing_msg.edit_text(
-                "\n".join(msg_linhas),
+                "📈 *Tendências Atuais*\n\n👆 Clique para gerar post:",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )

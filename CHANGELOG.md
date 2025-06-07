@@ -4,6 +4,22 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.5.1] - 2025-01-10 17:15 🎨
+
+### Interface Aprimorada - Tendências Mais Limpa
+- ✅ **INTERFACE SIMPLIFICADA**: Removida lista duplicada de tendências
+- ✅ **BOTÕES NUMERADOS**: Cada botão agora mostra "1-", "2-", etc.
+- ✅ **TÍTULOS BILÍNGUES**: Mostra título original - tradução em português
+- ✅ **MAIS LIMPO**: Apenas botões com instrução simples "👆 Clique para gerar post"
+
+### 🎯 Exemplo da Nova Interface
+Antes: Lista + botões duplicados
+Agora: Apenas botões formatados como:
+- `1- OpenAI releases GPT-5 - OpenAI lança GPT-5`
+- `2- Meta's new AI chip - Novo chip de IA da Meta`
+
+---
+
 ## [2.5.0] - 2025-01-10 16:30 ✨
 
 ### Nova Funcionalidade - Clique em Tendência = Extração de URL
