@@ -241,6 +241,88 @@ def tendencias_fallback() -> List[Tendencia]:
     ]
 
 
+def obter_tendencias_por_fonte(fonte: int = 0) -> List[Tendencia]:
+    """
+    Obtém tendências de uma fonte específica
+
+    Args:
+        fonte (int):
+            0 = Todas as fontes (padrão)
+            1 = TechCrunch
+            2 = Reddit
+            3 = Hacker News
+            4 = Tendências Fixas
+
+    Returns:
+        List[Tendencia]: Lista de tendências da fonte especificada
+    """
+    temas: List[Tendencia] = []
+
+    if fonte == 1:  # Apenas TechCrunch
+        logger.info("📰 Buscando tendências do TechCrunch...")
+        try:
+            temas = tendencias_techcrunch()
+            if not temas:
+                logger.warning("TechCrunch sem resultados, usando fallback")
+                temas = tendencias_fallback()[:5]
+        except Exception as e:
+            logger.warning(f"TechCrunch indisponível: {e}")
+            temas = tendencias_fallback()[:5]
+
+    elif fonte == 2:  # Apenas Reddit
+        logger.info("🔴 Buscando tendências do Reddit...")
+        try:
+            temas = tendencias_reddit()
+            if not temas:
+                logger.warning("Reddit sem resultados, usando fallback")
+                temas = tendencias_fallback()[:5]
+        except Exception as e:
+            logger.warning(f"Reddit indisponível: {e}")
+            temas = tendencias_fallback()[:5]
+
+    elif fonte == 3:  # Apenas Hacker News
+        logger.info("🍊 Buscando tendências do Hacker News...")
+        try:
+            temas = tendencias_hn()
+            if not temas:
+                logger.warning("Hacker News sem resultados, usando fallback")
+                temas = tendencias_fallback()[:5]
+        except Exception as e:
+            logger.warning(f"Hacker News indisponível: {e}")
+            temas = tendencias_fallback()[:5]
+
+    elif fonte == 4:  # Apenas tendências fixas
+        logger.info("📋 Usando tendências fixas...")
+        temas = tendencias_fallback()[:5]
+
+    else:  # fonte == 0 ou qualquer outro valor - todas as fontes
+        return obter_tendencias()
+
+    # Processar tendências
+    logger.info("Processando tendências com conteúdo inteligente...")
+    temas_processados = []
+
+    for tema in temas[:5]:  # Limitar a 5 para fonte específica
+        try:
+            tema_processado = processar_tendencia_com_conteudo(tema)
+            temas_processados.append(tema_processado)
+        except Exception as e:
+            logger.warning(f"Erro ao processar tendência {tema.titulo}: {e}")
+            # Em caso de erro, usar a tendência original
+            tema_limitado = Tendencia(
+                titulo=(
+                    tema.titulo[:50] + "..." if len(tema.titulo) > 50 else tema.titulo
+                ),
+                link=tema.link,
+                resumo=(
+                    tema.titulo[:50] + "..." if len(tema.titulo) > 50 else tema.titulo
+                ),
+            )
+            temas_processados.append(tema_limitado)
+
+    return temas_processados
+
+
 def obter_tendencias() -> List[Tendencia]:
     temas: List[Tendencia] = []
 

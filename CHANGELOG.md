@@ -4,6 +4,30 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.6.0] - 2025-01-10 18:30 🔍
+
+### Nova Funcionalidade - Tendências por Fonte Específica
+- ✅ **COMANDO EXPANDIDO**: `/tendencias [1-4]` para escolher fonte específica
+- ✅ **4 FONTES DISPONÍVEIS**: TechCrunch, Reddit, Hacker News, Tendências Fixas
+- ✅ **HELP INTEGRADO**: Mensagens de erro explicam como usar o comando
+- ✅ **INTERFACE CLARA**: Mostra qual fonte está sendo usada
+
+### 🎯 Comandos Disponíveis
+```
+/tendencias       → Todas as fontes 🌐
+/tendencias 1     → TechCrunch 📰
+/tendencias 2     → Reddit 🔴  
+/tendencias 3     → Hacker News 🍊
+/tendencias 4     → Tendências Fixas 📋
+```
+
+### 🧪 Testes Adicionados
+- ✅ **3 NOVOS TESTES**: Para funcionalidade `obter_tendencias_por_fonte()`
+- ✅ **COVERAGE COMPLETO**: Todas as fontes testadas individualmente
+- ✅ **17/17 TESTES**: Passando sem warnings
+
+---
+
 ## [2.5.2] - 2025-01-10 17:45 🎨
 
 ### Interface Aprimorada - Tendências com Traduções Embaixo

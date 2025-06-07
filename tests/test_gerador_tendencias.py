@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pytest
 
 from gerador_tendencias import (
@@ -10,11 +11,12 @@ from gerador_tendencias import (
     TECHCRUNCH_RSS,
     Tendencia,
     obter_tendencias,
+    obter_tendencias_por_fonte,
 )
 
 
-@patch('gerador_tendencias.TrendReq')
-@patch('gerador_tendencias.requests.get')
+@patch("gerador_tendencias.TrendReq")
+@patch("gerador_tendencias.requests.get")
 def test_obter_tendencias(mock_get, mock_trendreq):
     """Testar agregação de tendências de todas as fontes."""
 
@@ -70,17 +72,73 @@ def test_obter_tendencias(mock_get, mock_trendreq):
     }
     assert set(titulos) == esperado
 
-from gerador_tendencias import gerar_resumo_tendencia, processar_tendencia_com_conteudo, Tendencia
+
+@patch("gerador_tendencias.requests.get")
+def test_obter_tendencias_por_fonte_reddit(mock_get):
+    """Testar obtenção de tendências apenas do Reddit"""
+
+    def get_side_effect(url, *args, **kwargs):
+        resp = Mock()
+        if url == REDDIT_URL:
+            resp.json.return_value = {
+                "data": {
+                    "children": [
+                        {"data": {"title": "Reddit Test 1", "url": "http://reddit1"}},
+                        {"data": {"title": "Reddit Test 2", "url": "http://reddit2"}},
+                    ]
+                }
+            }
+            return resp
+        raise RuntimeError(f"URL inesperada: {url}")
+
+    mock_get.side_effect = get_side_effect
+
+    # Testar fonte 2 (Reddit)
+    tendencias = obter_tendencias_por_fonte(2)
+    assert len(tendencias) == 2
+    assert tendencias[0].titulo == "Reddit Test 1"
+    assert tendencias[1].titulo == "Reddit Test 2"
+
+
+@patch("gerador_tendencias.tendencias_techcrunch")
+def test_obter_tendencias_por_fonte_techcrunch(mock_techcrunch):
+    """Testar obtenção de tendências apenas do TechCrunch"""
+
+    # Mock direto da função tendencias_techcrunch para evitar parsing XML
+    mock_techcrunch.return_value = [Tendencia("TechCrunch Test Title", "http://tc1")]
+
+    # Testar fonte 1 (TechCrunch)
+    tendencias = obter_tendencias_por_fonte(1)
+    assert len(tendencias) >= 1
+    assert "TechCrunch Test Title" in [t.titulo for t in tendencias]
+
+
+def test_obter_tendencias_por_fonte_fallback():
+    """Testar obtenção de tendências fixas (fallback)"""
+
+    # Testar fonte 4 (Tendências fixas)
+    tendencias = obter_tendencias_por_fonte(4)
+    assert len(tendencias) == 5  # Limitado a 5
+    assert "Inteligência Artificial" in [t.titulo for t in tendencias]
+
+
+from gerador_tendencias import (
+    gerar_resumo_tendencia,
+    processar_tendencia_com_conteudo,
+    Tendencia,
+)
 
 
 def test_gerar_resumo_tendencia_curto():
-    titulo = 'Titulo Curto'
+    titulo = "Titulo Curto"
     assert gerar_resumo_tendencia(titulo) == titulo
 
 
 def test_processar_tendencia_com_conteudo():
-    titulo = 'Titulo muito grande para testar o resumo automatico do codigo que deve truncar'
-    tendencia = Tendencia(titulo, 'http://exemplo')
+    titulo = (
+        "Titulo muito grande para testar o resumo automatico do codigo que deve truncar"
+    )
+    tendencia = Tendencia(titulo, "http://exemplo")
     res = processar_tendencia_com_conteudo(tendencia)
     assert res.titulo == titulo
     assert isinstance(res.resumo, str) and res.resumo

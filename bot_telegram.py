@@ -26,7 +26,7 @@ from escritor_ia import (
     gerar_post_de_url,
 )
 from imagem_ia import gerar_imagem
-from gerador_tendencias import obter_tendencias
+from gerador_tendencias import obter_tendencias, obter_tendencias_por_fonte
 from tradutor import traduzir_para_pt
 
 # Configuração de logging mais detalhada
@@ -144,8 +144,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(
             "🤖 *GeraTexto Bot Ativo!*\n\n"
             "📝 `/gerar <tema>` - Criar post sobre um tema\n"
-            "📈 `/tendencias` - Ver tendências atuais\n"
-            "ℹ️ `/status` - Verificar status do bot",
+            "📈 `/tendencias [1-4]` - Ver tendências por fonte\n"
+            "ℹ️ `/status` - Verificar status do bot\n\n"
+            "🔍 **Fontes de Tendências:**\n"
+            "• `/tendencias` - Todas as fontes 🌐\n"
+            "• `/tendencias 1` - TechCrunch 📰\n"
+            "• `/tendencias 2` - Reddit 🔴\n"
+            "• `/tendencias 3` - Hacker News 🍊\n"
+            "• `/tendencias 4` - Tendências Fixas 📋",
             parse_mode="Markdown",
         )
     except Exception as e:
@@ -259,12 +265,66 @@ async def gerar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Comando /tendencias"""
+    """
+    Comando /tendencias [número]
+
+    Parâmetros opcionais:
+    - Sem número ou 0: Todas as fontes
+    - 1: TechCrunch
+    - 2: Reddit
+    - 3: Hacker News
+    - 4: Tendências Fixas
+    """
     try:
-        processing_msg = await update.message.reply_text("🔄 Buscando tendências...")
+        # Verificar se há argumento numérico
+        fonte = 0  # Padrão: todas as fontes
+        fonte_nome = "Todas as Fontes"
+
+        if context.args:
+            try:
+                fonte = int(context.args[0])
+                if fonte < 0 or fonte > 4:
+                    await update.message.reply_text(
+                        "❌ Número inválido!\n\n"
+                        "📋 **Fontes Disponíveis:**\n"
+                        "• `/tendencias` ou `/tendencias 0` - Todas as fontes\n"
+                        "• `/tendencias 1` - TechCrunch 📰\n"
+                        "• `/tendencias 2` - Reddit 🔴\n"
+                        "• `/tendencias 3` - Hacker News 🍊\n"
+                        "• `/tendencias 4` - Tendências Fixas 📋",
+                        parse_mode="Markdown",
+                    )
+                    return
+            except ValueError:
+                await update.message.reply_text(
+                    "❌ Use apenas números!\n\n"
+                    "📋 **Exemplos:**\n"
+                    "• `/tendencias 1` - TechCrunch\n"
+                    "• `/tendencias 2` - Reddit\n"
+                    "• `/tendencias 3` - Hacker News",
+                    parse_mode="Markdown",
+                )
+                return
+
+        # Definir nome da fonte
+        fontes_nomes = {
+            0: "🌐 Todas as Fontes",
+            1: "📰 TechCrunch",
+            2: "🔴 Reddit",
+            3: "🍊 Hacker News",
+            4: "📋 Tendências Fixas",
+        }
+        fonte_nome = fontes_nomes.get(fonte, "🌐 Todas as Fontes")
+
+        processing_msg = await update.message.reply_text(
+            f"🔄 Buscando tendências de: **{fonte_nome}**...", parse_mode="Markdown"
+        )
 
         try:
-            topicos = obter_tendencias()[:MAX_TENDENCIAS]
+            if fonte == 0:
+                topicos = obter_tendencias()[:MAX_TENDENCIAS]
+            else:
+                topicos = obter_tendencias_por_fonte(fonte)[:MAX_TENDENCIAS]
             if not topicos:
                 await processing_msg.edit_text(
                     "❌ Não foi possível obter tendências agora."
@@ -335,7 +395,7 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                     keyboard.append([InlineKeyboardButton(" ", callback_data="noop")])
 
             await processing_msg.edit_text(
-                "📈 *Tendências Atuais*\n\n👆 Clique para gerar post:",
+                f"📈 *Tendências Atuais*\n🔍 **Fonte:** {fonte_nome}\n\n👆 Clique para gerar post:",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )

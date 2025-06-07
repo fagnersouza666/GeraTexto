@@ -1,11 +1,11 @@
 # GeraTexto Bot 🤖
 
-**Versão 2.5.2** – Bot do Telegram para criação de conteúdo automatizado com IA.
+**Versão 2.6.0** – Bot do Telegram para criação de conteúdo automatizado com IA.
 
 ## Recursos
 - **Geração de posts** sobre qualquer tema
 - **Processamento de URLs** com resumo do conteúdo
-- **Coleta de tendências** (Reddit, TechCrunch e HackerNews)
+- **Tendências por fonte específica** (Reddit, TechCrunch e HackerNews) com comando `/tendencias [1-4]`
 - **Imagens via DALL‑E**
 - **Anexos em texto** para fácil cópia
 - **Preservação do conteúdo original** ao gerar imagens
@@ -23,14 +23,16 @@
 ## Comandos do Bot
 - `/start` – inicia o bot
 - `/gerar <tema ou URL>` – cria um post ou resume a URL
-- `/tendencias` – mostra as tendências atuais
+- `/tendencias [1-4]` – mostra tendências por fonte específica
 - `/status` – exibe o status do bot
 
 ### Exemplos
 ```
 /gerar Inteligência Artificial em 2024
 /gerar https://techcrunch.com/artigo-exemplo
-/tendencias
+/tendencias          # Todas as fontes
+/tendencias 1        # Apenas TechCrunch
+/tendencias 2        # Apenas Reddit
 ```
 
 ## Comandos Docker úteis
@@ -118,6 +120,12 @@ MIT – consulte o arquivo [LICENSE](LICENSE).
 Abra uma *issue* no GitHub ou verifique primeiro os logs com `docker logs -f geratexto-bot`.
 
 ## Histórico de Versões
+### 2.6.0
+- Comando `/tendencias [1-4]` para escolher fonte específica
+- 4 fontes disponíveis: TechCrunch, Reddit, Hacker News, Tendências Fixas
+- Interface mostra qual fonte está sendo usada
+- 3 novos testes para cobertura completa das fontes
+
 ### 2.5.2
 - Tendências com traduções em linhas separadas
 - Título original na primeira linha, tradução com 🇧🇷 na segunda
