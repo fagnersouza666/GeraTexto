@@ -4,3 +4,4 @@ python-dotenv==1.0.0
 python-telegram-bot==20.3
 pytrends==4.9.2
 requests==2.31.0
+deep-translator==1.11.4

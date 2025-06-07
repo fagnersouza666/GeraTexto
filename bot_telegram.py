@@ -27,6 +27,7 @@ from escritor_ia import (
 )
 from imagem_ia import gerar_imagem
 from gerador_tendencias import obter_tendencias
+from tradutor import traduzir_para_pt
 
 # Configuração de logging mais detalhada
 logging.basicConfig(
@@ -277,6 +278,8 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             # Criar apenas os botões para cada tendência
             keyboard = []
 
+            msg_linhas = ["📈 **Tendências Atuais**", ""]
+
             for i, t in enumerate(topicos):
                 # Armazenar tanto título original quanto resumo
                 cache_key = f"{update.effective_chat.id}_{i}"
@@ -306,8 +309,17 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                     ]
                 )
 
+                try:
+                    traducao = traduzir_para_pt(t.titulo)
+                except Exception:
+                    traducao = t.titulo
+                msg_linhas.append(f"{i+1}. {t.titulo} - {traducao}")
+
+            msg_linhas.append("")
+            msg_linhas.append("👆 *Clique para gerar post:*")
+
             await processing_msg.edit_text(
-                "📈 **Tendências Atuais**\n\n👆 *Clique para gerar post:*",
+                "\n".join(msg_linhas),
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown",
             )
