@@ -1,6 +1,6 @@
 # GeraTexto Bot 🤖
 
-**Versão 2.5.1** – Bot do Telegram para criação de conteúdo automatizado com IA.
+**Versão 2.5.2** – Bot do Telegram para criação de conteúdo automatizado com IA.
 
 ## Recursos
 - **Geração de posts** sobre qualquer tema
@@ -118,6 +118,12 @@ MIT – consulte o arquivo [LICENSE](LICENSE).
 Abra uma *issue* no GitHub ou verifique primeiro os logs com `docker logs -f geratexto-bot`.
 
 ## Histórico de Versões
+### 2.5.2
+- Tendências com traduções em linhas separadas
+- Título original na primeira linha, tradução com 🇧🇷 na segunda
+- Separadores visuais entre tendências
+- Tradução inteligente (só mostra se diferente do original)
+
 ### 2.5.1
 - Interface simplificada do comando `/tendencias`
 - Botões numerados com títulos bilíngues (original - tradução)

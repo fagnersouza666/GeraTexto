@@ -294,23 +294,45 @@ async def tendencias(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                 # Usar índice como callback_data (seguro)
                 callback_data = f"trend_{i}"
 
-                # Criar título do botão: número - título original - tradução
+                # Criar botão com título original
+                titulo_original = f"{i+1}- {t.titulo}"
+
+                # Limitar tamanho do título original
+                if len(titulo_original) > 80:
+                    titulo_original = titulo_original[:77] + "..."
+
+                # Adicionar botão com título original
+                keyboard.append(
+                    [InlineKeyboardButton(titulo_original, callback_data=callback_data)]
+                )
+
+                # Tentar obter tradução e adicionar como segundo botão
                 try:
                     traducao = traduzir_para_pt(t.titulo)
-                    if traducao == t.titulo:  # Se a tradução é igual ao original
-                        titulo_botao = f"{i+1}- {t.titulo}"
-                    else:
-                        titulo_botao = f"{i+1}- {t.titulo} - {traducao}"
-                except Exception:
-                    titulo_botao = f"{i+1}- {t.titulo}"
+                    if (
+                        traducao and traducao != t.titulo
+                    ):  # Se conseguiu traduzir e é diferente
+                        titulo_traducao = f"🇧🇷 {traducao}"
 
-                # Limitar tamanho do botão para não exceder limites do Telegram
-                if len(titulo_botao) > 60:
-                    titulo_botao = titulo_botao[:57] + "..."
+                        # Limitar tamanho da tradução
+                        if len(titulo_traducao) > 80:
+                            titulo_traducao = titulo_traducao[:77] + "..."
 
-                keyboard.append(
-                    [InlineKeyboardButton(titulo_botao, callback_data=callback_data)]
-                )
+                        # Adicionar botão com tradução (mesmo callback_data)
+                        keyboard.append(
+                            [
+                                InlineKeyboardButton(
+                                    titulo_traducao, callback_data=callback_data
+                                )
+                            ]
+                        )
+                except Exception as e:
+                    # Se falhar a tradução, não adiciona o segundo botão
+                    logger.debug(f"Erro na tradução de '{t.titulo}': {e}")
+
+                # Adicionar linha vazia entre tendências para separar visualmente
+                if i < len(topicos) - 1:  # Não adicionar após a última
+                    keyboard.append([InlineKeyboardButton(" ", callback_data="noop")])
 
             await processing_msg.edit_text(
                 "📈 *Tendências Atuais*\n\n👆 Clique para gerar post:",
@@ -419,6 +441,11 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await query.message.edit_reply_markup(
                     reply_markup=InlineKeyboardMarkup(keyboard)
                 )
+
+        elif data == "noop":
+            # Botão separador - não faz nada, apenas responde
+            await query.answer("📍 Separador visual")
+            return
 
         elif data.startswith("trend_"):
             # Processar clique em tendência usando índice

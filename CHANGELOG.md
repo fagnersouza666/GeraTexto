@@ -4,6 +4,35 @@ Registro de todas as mudanças e atualizações do projeto.
 
 ---
 
+## [2.5.2] - 2025-01-10 17:45 🎨
+
+### Interface Aprimorada - Tendências com Traduções Embaixo
+- ✅ **TRADUÇÃO SEPARADA**: Cada tendência agora mostra em 2 linhas
+- ✅ **LINHA 1**: Título original numerado (ex: "1- OpenAI releases GPT-5")
+- ✅ **LINHA 2**: Tradução com bandeira (ex: "🇧🇷 OpenAI lança GPT-5")
+- ✅ **SEPARADORES VISUAIS**: Botões espaçadores entre tendências
+- ✅ **TRADUÇÃO INTELIGENTE**: Só mostra tradução se for diferente do original
+
+### Testes Corrigidos e Melhorados
+- ✅ **TESTES UTILS**: Corrigidos com mocks adequados para isolar variáveis de ambiente
+- ✅ **ASYNC TESTS**: Substituído `asyncio.get_event_loop()` deprecated por `asyncio.run()`
+- ✅ **TODOS OS TESTES**: 14/14 passando sem warnings
+- ✅ **ISOLAMENTO**: Testes não interferem mais com configurações do sistema
+
+### 🎯 Nova Interface Visual
+```
+📈 Tendências Atuais
+👆 Clique para gerar post:
+
+[1- OpenAI releases GPT-5]
+[🇧🇷 OpenAI lança GPT-5]
+[ ]
+[2- Meta's new AI chip]
+[🇧🇷 Novo chip de IA da Meta]
+```
+
+---
+
 ## [2.5.1] - 2025-01-10 17:15 🎨
 
 ### Interface Aprimorada - Tendências Mais Limpa
