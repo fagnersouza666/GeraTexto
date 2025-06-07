@@ -3,7 +3,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 import re
-import requests
 
 import logging
 
