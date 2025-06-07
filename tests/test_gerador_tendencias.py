@@ -1,5 +1,6 @@
 from unittest.mock import Mock, patch
-
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 
 from gerador_tendencias import (
@@ -68,3 +69,18 @@ def test_obter_tendencias(mock_get, mock_trendreq):
         "HN102",
     }
     assert set(titulos) == esperado
+
+from gerador_tendencias import gerar_resumo_tendencia, processar_tendencia_com_conteudo, Tendencia
+
+
+def test_gerar_resumo_tendencia_curto():
+    titulo = 'Titulo Curto'
+    assert gerar_resumo_tendencia(titulo) == titulo
+
+
+def test_processar_tendencia_com_conteudo():
+    titulo = 'Titulo muito grande para testar o resumo automatico do codigo que deve truncar'
+    tendencia = Tendencia(titulo, 'http://exemplo')
+    res = processar_tendencia_com_conteudo(tendencia)
+    assert res.titulo == titulo
+    assert isinstance(res.resumo, str) and res.resumo
